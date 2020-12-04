@@ -1,7 +1,10 @@
 #!/bin/sh
 
-export C_POST_PROCESS_FILE="/usr/bin/uncrustify --no-backup"
-export UNCRUSTIFY_CONFIG=../openapi/.openapi-generator/uncrustify.cfg
+###  Ubuntu 20.04(focal) is not working
+#export C_POST_PROCESS_FILE="/usr/bin/uncrustify --no-backup"
+
+export C_POST_PROCESS_FILE="${HOME}/Documents/git/my/uncrustify/build/uncrustify --no-backup"
+export UNCRUSTIFY_CONFIG=../openapi/.openapi-generator/uncrustify-0.66.1.cfg
 openapi_generator_cli="java -jar ${HOME}/Documents/git/my/openapi-generator/modules/openapi-generator-cli/target/openapi-generator-cli.jar"
 
 $openapi_generator_cli generate -i ./modified/TS29503_Nudm_SDM.yaml -c ../openapi/.openapi-generator/config.yaml -g c -o ../openapi
