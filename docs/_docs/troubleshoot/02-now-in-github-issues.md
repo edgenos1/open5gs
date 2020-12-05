@@ -56,6 +56,7 @@ $ open5gs-nrfd
 $ open5gs-amfd
 $ open5gs-ausfd
 $ open5gs-udmd
+$ open5gs-pcfd
 $ open5gs-udrd
 ```
 
@@ -254,6 +255,7 @@ $ sudo pkill -9 open5gs-pcrfd
 $ sudo pkill -9 open5gs-nrfd
 $ sudo pkill -9 open5gs-ausfd
 $ sudo pkill -9 open5gs-udmd
+$ sudo pkill -9 open5gs-pcfd
 $ sudo pkill -9 open5gs-udrd
 ```
 
