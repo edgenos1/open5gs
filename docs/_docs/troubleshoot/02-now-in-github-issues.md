@@ -721,7 +721,8 @@ Currently, the number of UE is limited to `128*128`.
 * NRF : 127.0.0.10
 * AUSF : 127.0.0.11
 * UDM : 127.0.0.12
-* UDR : 127.0.0.13
+* PCF : 127.0.0.13
+* UDR : 127.0.0.20
 ```
 
 - AMF_ID, TAC and S_NSSAI
