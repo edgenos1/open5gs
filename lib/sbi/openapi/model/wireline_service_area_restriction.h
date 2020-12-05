@@ -21,12 +21,12 @@ extern "C" {
 
 typedef struct OpenAPI_wireline_service_area_restriction_s OpenAPI_wireline_service_area_restriction_t;
 typedef struct OpenAPI_wireline_service_area_restriction_s {
-    struct OpenAPI_restriction_type_s *restriction_type;
+    OpenAPI_restriction_type_e restriction_type;
     OpenAPI_list_t *areas;
 } OpenAPI_wireline_service_area_restriction_t;
 
 OpenAPI_wireline_service_area_restriction_t *OpenAPI_wireline_service_area_restriction_create(
-    OpenAPI_restriction_type_t *restriction_type,
+    OpenAPI_restriction_type_e restriction_type,
     OpenAPI_list_t *areas
     );
 void OpenAPI_wireline_service_area_restriction_free(OpenAPI_wireline_service_area_restriction_t *wireline_service_area_restriction);

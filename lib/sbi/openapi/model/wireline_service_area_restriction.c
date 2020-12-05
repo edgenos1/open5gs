@@ -5,7 +5,7 @@
 #include "wireline_service_area_restriction.h"
 
 OpenAPI_wireline_service_area_restriction_t *OpenAPI_wireline_service_area_restriction_create(
-    OpenAPI_restriction_type_t *restriction_type,
+    OpenAPI_restriction_type_e restriction_type,
     OpenAPI_list_t *areas
     )
 {
@@ -25,7 +25,6 @@ void OpenAPI_wireline_service_area_restriction_free(OpenAPI_wireline_service_are
         return;
     }
     OpenAPI_lnode_t *node;
-    OpenAPI_restriction_type_free(wireline_service_area_restriction->restriction_type);
     OpenAPI_list_for_each(wireline_service_area_restriction->areas, node) {
         OpenAPI_wireline_area_free(node->data);
     }
@@ -44,13 +43,7 @@ cJSON *OpenAPI_wireline_service_area_restriction_convertToJSON(OpenAPI_wireline_
 
     item = cJSON_CreateObject();
     if (wireline_service_area_restriction->restriction_type) {
-        cJSON *restriction_type_local_JSON = OpenAPI_restriction_type_convertToJSON(wireline_service_area_restriction->restriction_type);
-        if (restriction_type_local_JSON == NULL) {
-            ogs_error("OpenAPI_wireline_service_area_restriction_convertToJSON() failed [restriction_type]");
-            goto end;
-        }
-        cJSON_AddItemToObject(item, "restrictionType", restriction_type_local_JSON);
-        if (item->child == NULL) {
+        if (cJSON_AddStringToObject(item, "restrictionType", OpenAPI_restriction_type_ToString(wireline_service_area_restriction->restriction_type)) == NULL) {
             ogs_error("OpenAPI_wireline_service_area_restriction_convertToJSON() failed [restriction_type]");
             goto end;
         }
@@ -85,9 +78,13 @@ OpenAPI_wireline_service_area_restriction_t *OpenAPI_wireline_service_area_restr
     OpenAPI_wireline_service_area_restriction_t *wireline_service_area_restriction_local_var = NULL;
     cJSON *restriction_type = cJSON_GetObjectItemCaseSensitive(wireline_service_area_restrictionJSON, "restrictionType");
 
-    OpenAPI_restriction_type_t *restriction_type_local_nonprim = NULL;
+    OpenAPI_restriction_type_e restriction_typeVariable;
     if (restriction_type) {
-        restriction_type_local_nonprim = OpenAPI_restriction_type_parseFromJSON(restriction_type);
+        if (!cJSON_IsString(restriction_type)) {
+            ogs_error("OpenAPI_wireline_service_area_restriction_parseFromJSON() failed [restriction_type]");
+            goto end;
+        }
+        restriction_typeVariable = OpenAPI_restriction_type_FromString(restriction_type->valuestring);
     }
 
     cJSON *areas = cJSON_GetObjectItemCaseSensitive(wireline_service_area_restrictionJSON, "areas");
@@ -114,7 +111,7 @@ OpenAPI_wireline_service_area_restriction_t *OpenAPI_wireline_service_area_restr
     }
 
     wireline_service_area_restriction_local_var = OpenAPI_wireline_service_area_restriction_create (
-        restriction_type ? restriction_type_local_nonprim : NULL,
+        restriction_type ? restriction_typeVariable : 0,
         areas ? areasList : NULL
         );
 
