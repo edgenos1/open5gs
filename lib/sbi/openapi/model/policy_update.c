@@ -40,9 +40,6 @@ void OpenAPI_policy_update_free(OpenAPI_policy_update_t *policy_update)
     }
     OpenAPI_lnode_t *node;
     ogs_free(policy_update->resource_uri);
-    OpenAPI_list_for_each(policy_update->triggers, node) {
-        OpenAPI_request_trigger_free(node->data);
-    }
     OpenAPI_list_free(policy_update->triggers);
     OpenAPI_service_area_restriction_free(policy_update->serv_area_res);
     OpenAPI_wireline_service_area_restriction_free(policy_update->wl_serv_area_res);
@@ -78,21 +75,16 @@ cJSON *OpenAPI_policy_update_convertToJSON(OpenAPI_policy_update_t *policy_updat
     }
 
     if (policy_update->triggers) {
-        cJSON *triggersList = cJSON_AddArrayToObject(item, "triggers");
-        if (triggersList == NULL) {
+        cJSON *triggers = cJSON_AddArrayToObject(item, "triggers");
+        if (triggers == NULL) {
             ogs_error("OpenAPI_policy_update_convertToJSON() failed [triggers]");
             goto end;
         }
-
         OpenAPI_lnode_t *triggers_node;
-        if (policy_update->triggers) {
-            OpenAPI_list_for_each(policy_update->triggers, triggers_node) {
-                cJSON *itemLocal = OpenAPI_request_trigger_convertToJSON(triggers_node->data);
-                if (itemLocal == NULL) {
-                    ogs_error("OpenAPI_policy_update_convertToJSON() failed [triggers]");
-                    goto end;
-                }
-                cJSON_AddItemToArray(triggersList, itemLocal);
+        OpenAPI_list_for_each(policy_update->triggers, triggers_node) {
+            if (cJSON_AddStringToObject(triggers, "", OpenAPI_request_trigger_ToString((OpenAPI_request_trigger_e)triggers_node->data)) == NULL) {
+                ogs_error("OpenAPI_policy_update_convertToJSON() failed [triggers]");
+                goto end;
             }
         }
     }
@@ -222,13 +214,12 @@ OpenAPI_policy_update_t *OpenAPI_policy_update_parseFromJSON(cJSON *policy_updat
         triggersList = OpenAPI_list_create();
 
         cJSON_ArrayForEach(triggers_local_nonprimitive, triggers ) {
-            if (!cJSON_IsObject(triggers_local_nonprimitive)) {
+            if (!cJSON_IsString(triggers_local_nonprimitive)) {
                 ogs_error("OpenAPI_policy_update_parseFromJSON() failed [triggers]");
                 goto end;
             }
-            OpenAPI_request_trigger_t *triggersItem = OpenAPI_request_trigger_parseFromJSON(triggers_local_nonprimitive);
 
-            OpenAPI_list_add(triggersList, triggersItem);
+            OpenAPI_list_add(triggersList, (void *)OpenAPI_request_trigger_FromString(triggers_local_nonprimitive->valuestring));
         }
     }
 
