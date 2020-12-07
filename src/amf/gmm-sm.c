@@ -26,6 +26,7 @@
 #include "nausf-handler.h"
 #include "nsmf-handler.h"
 #include "nudm-handler.h"
+#include "npcf-handler.h"
 #include "sbi-path.h"
 #include "amf-sm.h"
 
@@ -874,6 +875,8 @@ void gmm_state_initial_context_setup(ogs_fsm_t *s, amf_event_t *e)
                 amf_nudm_sdm_handle_provisioned(amf_ue, sbi_message);
                 break;
             CASE(OGS_SBI_RESOURCE_NAME_UE_CONTEXT_IN_SMF_DATA)
+                amf_ue_sbi_discover_and_send(OpenAPI_nf_type_PCF, amf_ue,
+                    NULL, amf_npcf_am_policy_control_build_create);
                 /*
                  * Issues #553
                  *
@@ -911,6 +914,10 @@ void gmm_state_initial_context_setup(ogs_fsm_t *s, amf_event_t *e)
                         sbi_message->h.resource.component[1]);
                 ogs_assert_if_reached();
             END
+            break;
+
+        CASE(OGS_SBI_SERVICE_NAME_NPCF_AM_POLICY_CONTROL)
+            ogs_fatal("asdlkfjasdfasdf");
             break;
 
         DEFAULT

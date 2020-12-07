@@ -116,6 +116,7 @@ extern "C" {
 #define OGS_SBI_RESOURCE_NAME_PROVISIONED_DATA      "provisioned-data"
 
 #define OGS_SBI_SERVICE_NAME_NPCF_AM_POLICY_CONTROL "npcf-am-policy-control"
+#define OGS_SBI_RESOURCE_NAME_POLICIES              "policies"
 #define OGS_SBI_SERVICE_NAME_NPCF_SMPOLICYCONTROL   "npcf-smpolicycontrol"
 
 #define OGS_SBI_SERVICE_NAME_NSMF_PDUSESSION        "nsmf-pdusession"

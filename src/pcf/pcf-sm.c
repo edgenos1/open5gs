@@ -119,22 +119,12 @@ void pcf_state_operational(ogs_fsm_t *s, pcf_event_t *e)
             break;
 
 #if 0
-        CASE(OGS_SBI_SERVICE_NAME_NPCF_UEAU)
-        CASE(OGS_SBI_SERVICE_NAME_NPCF_UECM)
-        CASE(OGS_SBI_SERVICE_NAME_NPCF_SDM)
+        CASE(OGS_SBI_SERVICE_NAME_NPCF_AM_POLICY_CONTROL)
             if (!message.h.resource.component[0]) {
                 ogs_error("Not found [%s]", message.h.method);
                 ogs_sbi_server_send_error(stream,
                     OGS_SBI_HTTP_STATUS_NOT_FOUND,
                     &message, "Not found", message.h.method);
-                break;
-            }
-
-            if (!message.h.resource.component[1]) {
-                ogs_error("Invalid resource name [%s]", message.h.method);
-                ogs_sbi_server_send_error(stream,
-                    OGS_SBI_HTTP_STATUS_BAD_REQUEST,
-                    &message, "Invalid resource name", message.h.method);
                 break;
             }
 
