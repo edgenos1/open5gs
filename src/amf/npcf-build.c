@@ -27,7 +27,7 @@ ogs_sbi_request_t *amf_npcf_am_policy_control_build_create(
     ogs_sbi_request_t *request = NULL;
     ogs_sbi_server_t *server = NULL;
 
-    OpenAPI_amf3_gpp_access_registration_t Amf3GppAccessRegistration;
+    OpenAPI_policy_association_request_t PolicyAssociationRequest;
 
     ogs_assert(amf_ue);
     ogs_assert(amf_ue->supi);
@@ -39,38 +39,32 @@ ogs_sbi_request_t *amf_npcf_am_policy_control_build_create(
     message.h.api.version = (char *)OGS_SBI_API_V1;
     message.h.resource.component[0] = (char *)OGS_SBI_RESOURCE_NAME_POLICIES;
 
-#if 0
-    memset(&Amf3GppAccessRegistration, 0, sizeof(Amf3GppAccessRegistration));
+    memset(&PolicyAssociationRequest, 0, sizeof(PolicyAssociationRequest));
 
-    Amf3GppAccessRegistration.amf_instance_id = ogs_sbi_self()->nf_instance_id;
+    PolicyAssociationRequest.supi = amf_ue->supi;
+    PolicyAssociationRequest.pei = amf_ue->pei;
 
     server = ogs_list_first(&ogs_sbi_self()->server_list);
     ogs_assert(server);
 
     memset(&header, 0, sizeof(header));
-    header.service.name = (char *)OGS_SBI_SERVICE_NAME_NPCF_UECM;
+    header.service.name = (char *)OGS_SBI_SERVICE_NAME_NAMF_CALLBACK;
     header.api.version = (char *)OGS_SBI_API_V1;
     header.resource.component[0] = amf_ue->supi;
     header.resource.component[1] =
-            (char *)OGS_SBI_RESOURCE_NAME_DEREG_NOTIFY;
-    Amf3GppAccessRegistration.dereg_callback_uri =
+            (char *)OGS_SBI_RESOURCE_NAME_AM_POLICY_NOTIFY;
+    PolicyAssociationRequest.notification_uri =
                         ogs_sbi_server_uri(server, &header);
-    ogs_assert(Amf3GppAccessRegistration.dereg_callback_uri);
+    ogs_assert(PolicyAssociationRequest.notification_uri);
 
-    Amf3GppAccessRegistration.guami = ogs_sbi_build_guami(amf_ue->guami);
-    Amf3GppAccessRegistration.rat_type = OpenAPI_rat_type_NR;
+    PolicyAssociationRequest.supp_feat = (char *)"";
 
-    message.Amf3GppAccessRegistration = &Amf3GppAccessRegistration;
-#endif
+    message.PolicyAssociationRequest = &PolicyAssociationRequest;
 
     request = ogs_sbi_build_request(&message);
     ogs_assert(request);
 
-#if 0
-    if (Amf3GppAccessRegistration.guami)
-        ogs_sbi_free_guami(Amf3GppAccessRegistration.guami);
-    ogs_free(Amf3GppAccessRegistration.dereg_callback_uri);
-#endif
+    ogs_free(PolicyAssociationRequest.notification_uri);
 
     return request;
 }

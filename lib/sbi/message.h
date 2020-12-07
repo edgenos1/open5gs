@@ -115,10 +115,6 @@ extern "C" {
 #define OGS_SBI_RESOURCE_NAME_CONTEXT_DATA          "context-data"
 #define OGS_SBI_RESOURCE_NAME_PROVISIONED_DATA      "provisioned-data"
 
-#define OGS_SBI_SERVICE_NAME_NPCF_AM_POLICY_CONTROL "npcf-am-policy-control"
-#define OGS_SBI_RESOURCE_NAME_POLICIES              "policies"
-#define OGS_SBI_SERVICE_NAME_NPCF_SMPOLICYCONTROL   "npcf-smpolicycontrol"
-
 #define OGS_SBI_SERVICE_NAME_NSMF_PDUSESSION        "nsmf-pdusession"
 #define OGS_SBI_RESOURCE_NAME_SM_CONTEXTS           "sm-contexts"
 #define OGS_SBI_SERVICE_NAME_NSMF_EVENT_EXPOSURE    "nsmf-event-exposure"
@@ -126,10 +122,16 @@ extern "C" {
 #define OGS_SBI_RESOURCE_NAME_RELEASE               "release"
 
 #define OGS_SBI_SERVICE_NAME_NAMF_COMM              "namf-comm"
-#define OGS_SBI_SERVICE_NAME_NAMF_CALLBACK          "namf-callback"
 #define OGS_SBI_RESOURCE_NAME_UE_CONTEXTS           "ue-contexts"
 #define OGS_SBI_RESOURCE_NAME_N1_N2_MESSAGES        "n1-n2-messages"
+
+#define OGS_SBI_SERVICE_NAME_NAMF_CALLBACK          "namf-callback"
 #define OGS_SBI_RESOURCE_NAME_SM_CONTEXT_STATUS     "sm-context-status"
+#define OGS_SBI_RESOURCE_NAME_AM_POLICY_NOTIFY      "am-policy-notify"
+
+#define OGS_SBI_SERVICE_NAME_NPCF_AM_POLICY_CONTROL "npcf-am-policy-control"
+#define OGS_SBI_RESOURCE_NAME_POLICIES              "policies"
+#define OGS_SBI_SERVICE_NAME_NPCF_SMPOLICYCONTROL   "npcf-smpolicycontrol"
 
 #define OGS_SBI_PARAM_NF_TYPE                       "nf-type"
 #define OGS_SBI_PARAM_TARGET_NF_TYPE                "target-nf-type"
@@ -258,6 +260,7 @@ typedef struct ogs_sbi_message_s {
     OpenAPI_n1_n2_message_transfer_req_data_t *N1N2MessageTransferReqData;
     OpenAPI_n1_n2_message_transfer_rsp_data_t *N1N2MessageTransferRspData;
     OpenAPI_sm_context_status_notification_t *SmContextStatusNotification;
+    OpenAPI_policy_association_request_t *PolicyAssociationRequest;
 
     ogs_sbi_links_t *links;
 

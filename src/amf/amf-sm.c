@@ -140,11 +140,9 @@ void amf_state_operational(ogs_fsm_t *s, amf_event_t *e)
                     break;
 
                 DEFAULT
-                    ogs_error("Invalid HTTP method [%s]",
-                            sbi_message.h.method);
+                    ogs_error("Invalid HTTP method [%s]", sbi_message.h.method);
                     ogs_sbi_server_send_error(stream,
-                            OGS_SBI_HTTP_STATUS_FORBIDDEN,
-                            &sbi_message,
+                            OGS_SBI_HTTP_STATUS_FORBIDDEN, &sbi_message,
                             "Invalid HTTP method", sbi_message.h.method);
                 END
                 break;
@@ -168,11 +166,9 @@ void amf_state_operational(ogs_fsm_t *s, amf_event_t *e)
                     break;
 
                 DEFAULT
-                    ogs_error("Invalid HTTP method [%s]",
-                            sbi_message.h.method);
+                    ogs_error("Invalid HTTP method [%s]", sbi_message.h.method);
                     ogs_sbi_server_send_error(stream,
-                            OGS_SBI_HTTP_STATUS_FORBIDDEN,
-                            &sbi_message,
+                            OGS_SBI_HTTP_STATUS_FORBIDDEN, &sbi_message,
                             "Invalid HTTP method", sbi_message.h.method);
                 END
                 break;
@@ -237,6 +233,10 @@ void amf_state_operational(ogs_fsm_t *s, amf_event_t *e)
             CASE(OGS_SBI_RESOURCE_NAME_SM_CONTEXT_STATUS)
                 amf_namf_callback_handle_sm_context_status(
                         stream, &sbi_message);
+                break;
+
+            CASE(OGS_SBI_RESOURCE_NAME_AM_POLICY_NOTIFY)
+                ogs_error("am-policy-notify not implemented");
                 break;
 
             DEFAULT

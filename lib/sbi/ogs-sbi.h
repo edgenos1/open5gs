@@ -59,6 +59,7 @@
 #include "model/n1_n2_message_transfer_req_data.h"
 #include "model/n1_n2_message_transfer_rsp_data.h"
 #include "model/sm_context_status_notification.h"
+#include "model/policy_association_request.h"
 
 #include "custom/links.h"
 
