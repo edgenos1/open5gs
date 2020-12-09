@@ -1139,11 +1139,14 @@ static int parse_json(ogs_sbi_message_t *message,
                         ogs_error("Unknown resource name [%s]",
                                 message->h.resource.component[3]);
                     END
+                    break;
+
                 DEFAULT
                     rv = OGS_ERROR;
                     ogs_error("Unknown resource name [%s]",
                             message->h.resource.component[1]);
                 END
+                break;
 
             DEFAULT
                 rv = OGS_ERROR;

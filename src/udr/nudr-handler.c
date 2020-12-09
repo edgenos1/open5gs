@@ -715,12 +715,32 @@ bool udr_nudr_dr_handle_policy_data(
 
             SWITCH(recvmsg->h.resource.component[3])
             CASE(OGS_SBI_RESOURCE_NAME_AM_DATA)
+                OpenAPI_am_policy_data_t AmPolicyData;
+                OpenAPI_list_t *subscCatsList = NULL;
+                OpenAPI_lnode_t *node = NULL;
+
+                memset(&AmPolicyData, 0, sizeof(AmPolicyData));
+
+                subscCatsList = OpenAPI_list_create();
+
+                /* FIXME : Need to move MongoDB */
+                OpenAPI_list_add(subscCatsList, ogs_strdup("simple"));
+
+                if (subscCatsList->count)
+                    AmPolicyData.subsc_cats = subscCatsList;
+
                 memset(&sendmsg, 0, sizeof(sendmsg));
+                sendmsg.AmPolicyData = &AmPolicyData;
 
                 response = ogs_sbi_build_response(
                         &sendmsg, OGS_SBI_HTTP_STATUS_OK);
                 ogs_assert(response);
                 ogs_sbi_server_send_response(stream, response);
+
+                OpenAPI_list_for_each(subscCatsList, node) {
+                    if (node->data) ogs_free(node->data);
+                }
+                OpenAPI_list_free(subscCatsList);
 
                 return true;
 
