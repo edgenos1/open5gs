@@ -675,44 +675,63 @@ bool udr_nudr_dr_handle_subscription_provisioned(
 bool udr_nudr_dr_handle_policy_data(
         ogs_sbi_stream_t *stream, ogs_sbi_message_t *recvmsg)
 {
+    int rv;
+
     ogs_sbi_message_t sendmsg;
     ogs_sbi_response_t *response = NULL;
-
-    char *supi = NULL;
 
     ogs_assert(stream);
     ogs_assert(recvmsg);
 
-#if 0
-    supi = recvmsg->h.resource.component[1];
-    if (!supi) {
-        ogs_error("No SUPI");
-        ogs_sbi_server_send_error(stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
-                recvmsg, "No SUPI", NULL);
-        return false;
-    }
-
-    if (strncmp(supi,
-            OGS_ID_SUPI_TYPE_IMSI, strlen(OGS_ID_SUPI_TYPE_IMSI)) != 0) {
-        ogs_error("[%s] Unknown SUPI Type", supi);
-        ogs_sbi_server_send_error(stream, OGS_SBI_HTTP_STATUS_FORBIDDEN,
-                recvmsg, "Unknwon SUPI Type", supi);
-        return false;
-    }
-#endif
-
     SWITCH(recvmsg->h.resource.component[1])
     CASE(OGS_SBI_RESOURCE_NAME_UES)
+        ogs_subscription_data_t subscription_data;
+        char *supi = recvmsg->h.resource.component[2];
+
+        if (!supi) {
+            ogs_error("No SUPI");
+            ogs_sbi_server_send_error(stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
+                    recvmsg, "No SUPI", NULL);
+            return false;
+        }
+
+        if (strncmp(supi,
+                OGS_ID_SUPI_TYPE_IMSI, strlen(OGS_ID_SUPI_TYPE_IMSI)) != 0) {
+            ogs_error("[%s] Unknown SUPI Type", supi);
+            ogs_sbi_server_send_error(stream, OGS_SBI_HTTP_STATUS_FORBIDDEN,
+                    recvmsg, "Unknwon SUPI Type", supi);
+            return false;
+        }
+
         SWITCH(recvmsg->h.method)
         CASE(OGS_SBI_HTTP_METHOD_GET)
-            memset(&sendmsg, 0, sizeof(sendmsg));
+            rv = ogs_dbi_subscription_data(supi, &subscription_data);
+            if (rv != OGS_OK) {
+                ogs_error("[%s] Cannot find SUPI in DB", supi);
+                ogs_sbi_server_send_error(stream, OGS_SBI_HTTP_STATUS_NOT_FOUND,
+                        recvmsg, "Cannot find SUPI Type", supi);
+                return false;
+            }
 
-            response = ogs_sbi_build_response(
-                    &sendmsg, OGS_SBI_HTTP_STATUS_NO_CONTENT);
-            ogs_assert(response);
-            ogs_sbi_server_send_response(stream, response);
+            SWITCH(recvmsg->h.resource.component[3])
+            CASE(OGS_SBI_RESOURCE_NAME_AM_DATA)
+                memset(&sendmsg, 0, sizeof(sendmsg));
 
-            return true;
+                response = ogs_sbi_build_response(
+                        &sendmsg, OGS_SBI_HTTP_STATUS_NO_CONTENT);
+                ogs_assert(response);
+                ogs_sbi_server_send_response(stream, response);
+
+                return true;
+
+            DEFAULT
+                ogs_error("Invalid resource name [%s]",
+                        recvmsg->h.resource.component[3]);
+                ogs_sbi_server_send_error(stream,
+                        OGS_SBI_HTTP_STATUS_MEHTOD_NOT_ALLOWED,
+                        recvmsg, "Unknown resource name",
+                        recvmsg->h.resource.component[3]);
+            END
 
         DEFAULT
             ogs_error("Invalid HTTP method [%s]", recvmsg->h.method);
