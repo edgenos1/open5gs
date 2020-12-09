@@ -718,7 +718,7 @@ bool udr_nudr_dr_handle_policy_data(
                 memset(&sendmsg, 0, sizeof(sendmsg));
 
                 response = ogs_sbi_build_response(
-                        &sendmsg, OGS_SBI_HTTP_STATUS_NO_CONTENT);
+                        &sendmsg, OGS_SBI_HTTP_STATUS_OK);
                 ogs_assert(response);
                 ogs_sbi_server_send_response(stream, response);
 

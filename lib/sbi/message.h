@@ -264,6 +264,8 @@ typedef struct ogs_sbi_message_s {
     OpenAPI_n1_n2_message_transfer_rsp_data_t *N1N2MessageTransferRspData;
     OpenAPI_sm_context_status_notification_t *SmContextStatusNotification;
     OpenAPI_policy_association_request_t *PolicyAssociationRequest;
+    OpenAPI_policy_association_t *PolicyAssociation;
+    OpenAPI_am_policy_data_t *AmPolicyData;
 
     ogs_sbi_links_t *links;
 
