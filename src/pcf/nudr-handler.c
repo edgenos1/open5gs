@@ -30,8 +30,7 @@ bool pcf_nudr_dr_handle_query_am_data(
 
     int status;
 
-#if 0
-    OpenAPI_amf3_gpp_access_registration_t *Amf3GppAccessRegistration = NULL;
+    OpenAPI_policy_association_request_t *PolicyAssociationRequest = NULL;
 
     ogs_assert(pcf_ue);
     ogs_assert(stream);
@@ -40,8 +39,40 @@ bool pcf_nudr_dr_handle_query_am_data(
 
     ogs_assert(recvmsg);
 
-    SWITCH(recvmsg->h.resource.component[3])
-    CASE(OGS_SBI_RESOURCE_NAME_AMF_3GPP_ACCESS)
+    SWITCH(recvmsg->h.resource.component[1])
+    CASE(OGS_SBI_RESOURCE_NAME_UES)
+        SWITCH(recvmsg->h.resource.component[3])
+        CASE(OGS_SBI_RESOURCE_NAME_AM_DATA)
+            PolicyAssociationRequest = pcf_ue->policy_association_request;
+            if (!PolicyAssociationRequest) {
+                ogs_error("[%s] No PolicyAssociationRequest", pcf_ue->supi);
+                ogs_sbi_server_send_error(
+                        stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
+                        recvmsg, "No PolicyAssociationRequest", pcf_ue->supi);
+                return false;
+            }
+
+            memset(&sendmsg, 0, sizeof(sendmsg));
+
+            status = OGS_SBI_HTTP_STATUS_NO_CONTENT;
+
+            response = ogs_sbi_build_response(&sendmsg, status);
+            ogs_assert(response);
+            ogs_sbi_server_send_response(stream, response);
+
+            return true;
+
+        DEFAULT
+            ogs_error("Invalid resource name [%s]",
+                    recvmsg->h.resource.component[3]);
+        END
+
+    DEFAULT
+        ogs_error("Invalid resource name [%s]",
+                recvmsg->h.resource.component[1]);
+    END
+
+#if 0
         Amf3GppAccessRegistration = pcf_ue->amf_3gpp_access_registration;
         if (!Amf3GppAccessRegistration) {
             ogs_error("[%s] No Amf3GppAccessRegistration", pcf_ue->supi);
@@ -91,11 +122,6 @@ bool pcf_nudr_dr_handle_query_am_data(
         OpenAPI_amf3_gpp_access_registration_free(
                 sendmsg.Amf3GppAccessRegistration);
         return true;
-
-    DEFAULT
-        ogs_error("Invalid resource name [%s]",
-                recvmsg->h.resource.component[3]);
-    END
 #endif
 
     return false;

@@ -110,10 +110,9 @@ void pcf_ue_state_operational(ogs_fsm_t *s, pcf_event_t *e)
                     break;
                 }
 
-                pcf_nudr_dr_handle_query_am_data(
-                        pcf_ue, stream, message);
-
+                pcf_nudr_dr_handle_query_am_data(pcf_ue, stream, message);
                 break;
+
             DEFAULT
                 ogs_error("Invalid resource name [%s]",
                         message->h.resource.component[0]);
