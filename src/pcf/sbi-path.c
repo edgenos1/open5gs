@@ -145,6 +145,6 @@ void pcf_sbi_discover_and_send(OpenAPI_nf_type_e target_nf_type,
 
         ogs_sbi_server_send_error(stream,
                 OGS_SBI_HTTP_STATUS_GATEWAY_TIMEOUT, NULL,
-                "Cannot discover", pcf_ue->suci);
+                "Cannot discover", pcf_ue->supi);
     }
 }

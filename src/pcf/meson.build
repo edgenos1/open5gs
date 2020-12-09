@@ -23,6 +23,11 @@ libpcf_sources = files('''
     nnrf-handler.c
     nf-sm.c
 
+    npcf-handler.c
+
+    nudr-build.c
+    nudr-handler.c
+
     ue-sm.c
 
     sbi-path.c

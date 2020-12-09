@@ -118,29 +118,22 @@ void pcf_state_operational(ogs_fsm_t *s, pcf_event_t *e)
             END
             break;
 
-#if 0
         CASE(OGS_SBI_SERVICE_NAME_NPCF_AM_POLICY_CONTROL)
-            if (!message.h.resource.component[0]) {
-                ogs_error("Not found [%s]", message.h.method);
-                ogs_sbi_server_send_error(stream,
-                    OGS_SBI_HTTP_STATUS_NOT_FOUND,
-                    &message, "Not found", message.h.method);
-                break;
-            }
-
-            SWITCH(message.h.resource.component[2])
-            CASE(OGS_SBI_RESOURCE_NAME_AUTH_EVENTS)
-                pcf_ue = pcf_ue_find_by_ctx_id(
-                        message.h.resource.component[2]);
+            SWITCH(message.h.method)
+            CASE(OGS_SBI_HTTP_METHOD_POST)
+                if (message.PolicyAssociationRequest &&
+                    message.PolicyAssociationRequest->supi) {
+                    pcf_ue = pcf_ue_find_by_supi(
+                                message.PolicyAssociationRequest->supi);
+                    if (!pcf_ue) {
+                        pcf_ue = pcf_ue_add(
+                            message.PolicyAssociationRequest->supi);
+                        ogs_assert(pcf_ue);
+                    }
+                }
                 break;
 
             DEFAULT
-                pcf_ue = pcf_ue_find_by_suci_or_supi(
-                        message.h.resource.component[0]);
-                if (!pcf_ue) {
-                    pcf_ue = pcf_ue_add(message.h.resource.component[0]);
-                    ogs_assert(pcf_ue);
-                }
             END
 
             if (!pcf_ue) {
@@ -157,11 +150,10 @@ void pcf_state_operational(ogs_fsm_t *s, pcf_event_t *e)
             e->sbi.message = &message;
             ogs_fsm_dispatch(&pcf_ue->sm, e);
             if (OGS_FSM_CHECK(&pcf_ue->sm, pcf_ue_state_exception)) {
-                ogs_error("[%s] State machine exception", pcf_ue->suci);
+                ogs_error("[%s] State machine exception", pcf_ue->supi);
                 pcf_ue_remove(pcf_ue);
             }
             break;
-#endif
 
         DEFAULT
             ogs_error("Invalid API name [%s]", message.h.service.name);
@@ -277,7 +269,7 @@ void pcf_state_operational(ogs_fsm_t *s, pcf_event_t *e)
 
         CASE(OGS_SBI_SERVICE_NAME_NUDR_DR)
             SWITCH(message.h.resource.component[0])
-            CASE(OGS_SBI_RESOURCE_NAME_SUBSCRIPTION_DATA)
+            CASE(OGS_SBI_RESOURCE_NAME_POLICY_DATA)
                 sbi_xact = e->sbi.data;
                 ogs_assert(sbi_xact);
 
@@ -294,7 +286,7 @@ void pcf_state_operational(ogs_fsm_t *s, pcf_event_t *e)
 
                 ogs_fsm_dispatch(&pcf_ue->sm, e);
                 if (OGS_FSM_CHECK(&pcf_ue->sm, pcf_ue_state_exception)) {
-                    ogs_error("[%s] State machine exception", pcf_ue->suci);
+                    ogs_error("[%s] State machine exception", pcf_ue->supi);
                     pcf_ue_remove(pcf_ue);
                 }
 

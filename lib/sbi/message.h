@@ -114,6 +114,9 @@ extern "C" {
 #define OGS_SBI_RESOURCE_NAME_AUTHENTICATION_STATUS "authentication-status"
 #define OGS_SBI_RESOURCE_NAME_CONTEXT_DATA          "context-data"
 #define OGS_SBI_RESOURCE_NAME_PROVISIONED_DATA      "provisioned-data"
+#define OGS_SBI_RESOURCE_NAME_POLICY_DATA           "policy-data"
+#define OGS_SBI_RESOURCE_NAME_UES                   "ues"
+#define OGS_SBI_RESOURCE_NAME_AM_DATA               "am-data"
 
 #define OGS_SBI_SERVICE_NAME_NSMF_PDUSESSION        "nsmf-pdusession"
 #define OGS_SBI_RESOURCE_NAME_SM_CONTEXTS           "sm-contexts"

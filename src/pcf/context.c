@@ -39,7 +39,6 @@ void pcf_context_init(void)
     ogs_pool_init(&pcf_ue_pool, ogs_app()->max.ue);
 
     ogs_list_init(&self.pcf_ue_list);
-    self.suci_hash = ogs_hash_make();
     self.supi_hash = ogs_hash_make();
 
     context_initialized = 1;
@@ -51,8 +50,6 @@ void pcf_context_final(void)
 
     pcf_ue_remove_all();
 
-    ogs_assert(self.suci_hash);
-    ogs_hash_destroy(self.suci_hash);
     ogs_assert(self.supi_hash);
     ogs_hash_destroy(self.supi_hash);
 
@@ -114,26 +111,22 @@ int pcf_context_parse_config(void)
     return OGS_OK;
 }
 
-pcf_ue_t *pcf_ue_add(char *suci)
+pcf_ue_t *pcf_ue_add(char *supi)
 {
     pcf_event_t e;
     pcf_ue_t *pcf_ue = NULL;
 
-    ogs_assert(suci);
+    ogs_assert(supi);
 
     ogs_pool_alloc(&pcf_ue_pool, &pcf_ue);
     ogs_assert(pcf_ue);
     memset(pcf_ue, 0, sizeof *pcf_ue);
 
-    pcf_ue->ctx_id = ogs_msprintf("%d",
+    pcf_ue->association_id = ogs_msprintf("%d",
             (int)ogs_pool_index(&pcf_ue_pool, pcf_ue));
-    ogs_assert(pcf_ue->ctx_id);
+    ogs_assert(pcf_ue->association_id);
 
-    pcf_ue->suci = ogs_strdup(suci);
-    ogs_assert(pcf_ue->suci);
-    ogs_hash_set(self.suci_hash, pcf_ue->suci, strlen(pcf_ue->suci), pcf_ue);
-
-    pcf_ue->supi = ogs_supi_from_suci(pcf_ue->suci);
+    pcf_ue->supi = ogs_strdup(supi);
     ogs_assert(pcf_ue->supi);
     ogs_hash_set(self.supi_hash, pcf_ue->supi, strlen(pcf_ue->supi), pcf_ue);
 
@@ -163,29 +156,14 @@ void pcf_ue_remove(pcf_ue_t *pcf_ue)
     /* Free SBI object memory */
     ogs_sbi_object_free(&pcf_ue->sbi);
 
-    OpenAPI_auth_event_free(pcf_ue->auth_event);
-    OpenAPI_amf3_gpp_access_registration_free(
-            pcf_ue->amf_3gpp_access_registration);
+    OpenAPI_policy_association_request_free(pcf_ue->policy_assocation_request);
 
-    ogs_assert(pcf_ue->ctx_id);
-    ogs_free(pcf_ue->ctx_id);
-
-    ogs_assert(pcf_ue->suci);
-    ogs_hash_set(self.suci_hash, pcf_ue->suci, strlen(pcf_ue->suci), NULL);
-    ogs_free(pcf_ue->suci);
+    ogs_assert(pcf_ue->association_id);
+    ogs_free(pcf_ue->association_id);
 
     ogs_assert(pcf_ue->supi);
     ogs_hash_set(self.supi_hash, pcf_ue->supi, strlen(pcf_ue->supi), NULL);
     ogs_free(pcf_ue->supi);
-
-    if (pcf_ue->serving_network_name)
-        ogs_free(pcf_ue->serving_network_name);
-    if (pcf_ue->ausf_instance_id)
-        ogs_free(pcf_ue->ausf_instance_id);
-    if (pcf_ue->amf_instance_id)
-        ogs_free(pcf_ue->amf_instance_id);
-    if (pcf_ue->dereg_callback_uri)
-        ogs_free(pcf_ue->dereg_callback_uri);
 
     ogs_pool_free(&pcf_ue_pool, pcf_ue);
 }
@@ -198,31 +176,16 @@ void pcf_ue_remove_all()
         pcf_ue_remove(pcf_ue);
 }
 
-pcf_ue_t *pcf_ue_find_by_suci(char *suci)
-{
-    ogs_assert(suci);
-    return (pcf_ue_t *)ogs_hash_get(self.suci_hash, suci, strlen(suci));
-}
-
 pcf_ue_t *pcf_ue_find_by_supi(char *supi)
 {
     ogs_assert(supi);
     return (pcf_ue_t *)ogs_hash_get(self.supi_hash, supi, strlen(supi));
 }
 
-pcf_ue_t *pcf_ue_find_by_suci_or_supi(char *suci_or_supi)
+pcf_ue_t *pcf_ue_find_by_association_id(char *association_id)
 {
-    ogs_assert(suci_or_supi);
-    if (strncmp(suci_or_supi, "suci-", strlen("suci-")) == 0)
-        return pcf_ue_find_by_suci(suci_or_supi);
-    else
-        return pcf_ue_find_by_supi(suci_or_supi);
-}
-
-pcf_ue_t *pcf_ue_find_by_ctx_id(char *ctx_id)
-{
-    ogs_assert(ctx_id);
-    return ogs_pool_find(&pcf_ue_pool, atoll(ctx_id));
+    ogs_assert(association_id);
+    return ogs_pool_find(&pcf_ue_pool, atoll(association_id));
 }
 
 pcf_ue_t *pcf_ue_cycle(pcf_ue_t *pcf_ue)

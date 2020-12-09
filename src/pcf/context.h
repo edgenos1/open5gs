@@ -42,7 +42,6 @@ typedef struct pcf_context_s {
     OpenAPI_nf_type_e   nf_type;
 
     ogs_list_t      pcf_ue_list;
-    ogs_hash_t      *suci_hash;
     ogs_hash_t      *supi_hash;
 
 } pcf_context_t;
@@ -51,28 +50,12 @@ struct pcf_ue_s {
     ogs_sbi_object_t sbi;
     ogs_fsm_t sm;
 
-    OpenAPI_auth_event_t *auth_event;
-    OpenAPI_amf3_gpp_access_registration_t *amf_3gpp_access_registration;
+    OpenAPI_policy_association_request_t *policy_assocation_request;
 
-    char *ctx_id;
-    char *suci;
+    char *association_id;
     char *supi;
-    char *serving_network_name;
-
-    char *ausf_instance_id;
-    char *amf_instance_id;
-
-    char *dereg_callback_uri;
-
-    uint8_t k[OGS_KEY_LEN];
-    uint8_t opc[OGS_KEY_LEN];
-    uint8_t amf[OGS_AMF_LEN];
-    uint8_t rand[OGS_RAND_LEN];
-    uint8_t sqn[OGS_SQN_LEN];
 
     ogs_guami_t guami;
-
-    OpenAPI_auth_type_e auth_type;
 
 #define PCF_NF_INSTANCE_CLEAR(_cAUSE, _nFInstance) \
     do { \
@@ -97,13 +80,11 @@ pcf_context_t *pcf_self(void);
 
 int pcf_context_parse_config(void);
 
-pcf_ue_t *pcf_ue_add(char *suci);
+pcf_ue_t *pcf_ue_add(char *supi);
 void pcf_ue_remove(pcf_ue_t *pcf_ue);
 void pcf_ue_remove_all(void);
-pcf_ue_t *pcf_ue_find_by_suci(char *suci);
 pcf_ue_t *pcf_ue_find_by_supi(char *supi);
-pcf_ue_t *pcf_ue_find_by_suci_or_supi(char *suci_or_supi);
-pcf_ue_t *pcf_ue_find_by_ctx_id(char *ctx_id);
+pcf_ue_t *pcf_ue_find_by_association_id(char *association_id);
 
 pcf_ue_t *pcf_ue_cycle(pcf_ue_t *pcf_ue);
 
