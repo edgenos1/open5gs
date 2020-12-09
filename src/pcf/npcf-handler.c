@@ -25,6 +25,7 @@ bool pcf_npcf_am_policy_contrtol_handle_create(pcf_ue_t *pcf_ue,
         ogs_sbi_stream_t *stream, ogs_sbi_message_t *message)
 {
     OpenAPI_policy_association_request_t *PolicyAssociationRequest = NULL;
+    OpenAPI_guami_t *Guami = NULL;
 
     ogs_assert(pcf_ue);
     ogs_assert(stream);
@@ -63,6 +64,15 @@ bool pcf_npcf_am_policy_contrtol_handle_create(pcf_ue_t *pcf_ue,
         ogs_free(pcf_ue->notification_uri);
     pcf_ue->notification_uri = ogs_strdup(
             PolicyAssociationRequest->notification_uri);
+
+    Guami = PolicyAssociationRequest->guami;
+    if (Guami && Guami->amf_id &&
+        Guami->plmn_id && Guami->plmn_id->mnc && Guami->plmn_id->mcc) {
+        ogs_sbi_parse_guami(&pcf_ue->guami, PolicyAssociationRequest->guami);
+    }
+
+    if (PolicyAssociationRequest->rat_type)
+        pcf_ue->rat_type = PolicyAssociationRequest->rat_type;
 
     pcf_ue->policy_association_request =
         OpenAPI_policy_association_request_copy(

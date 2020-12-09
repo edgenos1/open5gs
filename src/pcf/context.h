@@ -57,19 +57,8 @@ struct pcf_ue_s {
 
     char *notification_uri;
 
-    /*
-     * TODO
-     *
-     * TS29.507(Optional)
-     *
-     * If the PCF received an GUAMI, the PCF may subscribe to GUAMI changes
-     * using the AMFStatusChange service operation of the Namf_Communication
-     * service specified in 3GPP TS 29.518 [14], and it may use the
-     * Nnrf_NFDiscovery Service specified in 3GPP TS 29.510 [13]
-     * (using the obtained GUAMI and possibly service name)
-     * to query the other AMFs within the AMF set.
-     */
     ogs_guami_t guami;
+    OpenAPI_rat_type_e rat_type;
 
 #define PCF_NF_INSTANCE_CLEAR(_cAUSE, _nFInstance) \
     do { \
