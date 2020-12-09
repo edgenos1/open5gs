@@ -55,7 +55,7 @@ struct pcf_ue_s {
     char *association_id;
     char *supi;
 
-    ogs_guami_t guami;
+    char *notification_uri;
 
 #define PCF_NF_INSTANCE_CLEAR(_cAUSE, _nFInstance) \
     do { \

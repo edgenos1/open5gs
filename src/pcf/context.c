@@ -165,6 +165,9 @@ void pcf_ue_remove(pcf_ue_t *pcf_ue)
     ogs_hash_set(self.supi_hash, pcf_ue->supi, strlen(pcf_ue->supi), NULL);
     ogs_free(pcf_ue->supi);
 
+    if (pcf_ue->notification_uri)
+        ogs_free(pcf_ue->notification_uri);
+
     ogs_pool_free(&pcf_ue_pool, pcf_ue);
 }
 

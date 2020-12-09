@@ -59,6 +59,11 @@ bool pcf_npcf_am_policy_contrtol_handle_create(pcf_ue_t *pcf_ue,
         return false;
     }
 
+    if (pcf_ue->notification_uri)
+        ogs_free(pcf_ue->notification_uri);
+    pcf_ue->notification_uri = ogs_strdup(
+            PolicyAssociationRequest->notification_uri);
+
     pcf_ue->policy_association_request =
         OpenAPI_policy_association_request_copy(
                 pcf_ue->policy_association_request,
