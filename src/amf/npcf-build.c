@@ -87,6 +87,8 @@ ogs_sbi_request_t *amf_npcf_am_policy_control_build_create(
     PolicyAssociationRequest.serving_plmn =
         ogs_sbi_build_plmn_id_nid(&amf_ue->tai.plmn_id);
 
+    PolicyAssociationRequest.rat_type = amf_ue_rat_type(amf_ue);
+
     memset(&ueAmbr, 0, sizeof(ueAmbr));
     if (amf_ue->subscribed_ue_ambr.uplink) {
         ueAmbr.uplink = ogs_sbi_bitrate_to_string(

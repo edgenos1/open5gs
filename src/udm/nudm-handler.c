@@ -243,12 +243,21 @@ bool udm_nudm_uecm_handle_registration(
         return false;
     }
 
+    if (!Amf3GppAccessRegistration->rat_type) {
+        ogs_error("[%s] No RatType", udm_ue->supi);
+        ogs_sbi_server_send_error(stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
+                message, "No RatType", udm_ue->supi);
+        return false;
+    }
+
     if (udm_ue->dereg_callback_uri)
         ogs_free(udm_ue->dereg_callback_uri);
     udm_ue->dereg_callback_uri = ogs_strdup(
             Amf3GppAccessRegistration->dereg_callback_uri);
 
     ogs_sbi_parse_guami(&udm_ue->guami, Guami);
+
+    udm_ue->rat_type = Amf3GppAccessRegistration->rat_type;
 
     udm_ue->amf_3gpp_access_registration =
         OpenAPI_amf3_gpp_access_registration_copy(

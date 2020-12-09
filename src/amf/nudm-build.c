@@ -59,7 +59,8 @@ ogs_sbi_request_t *amf_nudm_uecm_build_registration(
     ogs_assert(Amf3GppAccessRegistration.dereg_callback_uri);
 
     Amf3GppAccessRegistration.guami = ogs_sbi_build_guami(amf_ue->guami);
-    Amf3GppAccessRegistration.rat_type = OpenAPI_rat_type_NR;
+    Amf3GppAccessRegistration.rat_type = amf_ue_rat_type(amf_ue);
+    ogs_assert(Amf3GppAccessRegistration.rat_type != OpenAPI_rat_type_NULL);
 
     message.Amf3GppAccessRegistration = &Amf3GppAccessRegistration;
 

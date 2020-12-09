@@ -833,6 +833,9 @@ amf_gnb_t *amf_gnb_add(ogs_sock_t *sock, ogs_sockaddr_t *addr)
     ogs_assert(gnb);
     memset(gnb, 0, sizeof *gnb);
 
+    /* Defaut RAT-Type */
+    gnb->rat_type = OpenAPI_rat_type_NR;
+
     gnb->sctp.sock = sock;
     gnb->sctp.addr = addr;
     gnb->sctp.type = amf_gnb_sock_type(gnb->sctp.sock);
@@ -1372,6 +1375,19 @@ void amf_ue_set_supi(amf_ue_t *amf_ue, char *supi)
     amf_ue->supi = ogs_strdup(supi);
     ogs_assert(amf_ue->supi);
     ogs_hash_set(self.supi_hash, amf_ue->supi, strlen(amf_ue->supi), amf_ue);
+}
+
+OpenAPI_rat_type_e amf_ue_rat_type(amf_ue_t *amf_ue)
+{
+    amf_gnb_t *gnb = NULL;
+    ran_ue_t *ran_ue = NULL;
+
+    ran_ue = amf_ue->ran_ue;
+    ogs_assert(ran_ue);
+    gnb = ran_ue->gnb;
+    ogs_assert(gnb);
+
+    return gnb->rat_type;
 }
 
 void amf_ue_associate_ran_ue(amf_ue_t *amf_ue, ran_ue_t *ran_ue)
