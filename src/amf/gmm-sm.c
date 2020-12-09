@@ -926,13 +926,11 @@ void gmm_state_initial_context_setup(ogs_fsm_t *s, amf_event_t *e)
                         sbi_message->h.resource.component[0]);
                 ogs_assert_if_reached();
             END
-
             break;
 
         DEFAULT
             ogs_error("Invalid service name [%s]", sbi_message->h.service.name);
             ogs_assert_if_reached();
-
         END
         break;
 
