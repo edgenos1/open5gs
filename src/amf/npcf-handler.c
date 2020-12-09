@@ -25,5 +25,52 @@
 int amf_npcf_am_policy_control_handle_create(
         amf_ue_t *amf_ue, ogs_sbi_message_t *recvmsg)
 {
-    return 0;
+    int rv;
+
+    ogs_sbi_message_t message;
+    ogs_sbi_header_t header;
+
+    if (recvmsg->res_status != OGS_SBI_HTTP_STATUS_CREATED) {
+        ogs_error("[%s] HTTP response error [%d]",
+                amf_ue->supi, recvmsg->res_status);
+        nas_5gs_send_gmm_reject_from_sbi(amf_ue, recvmsg->res_status);
+        return OGS_ERROR;
+    }
+
+    if (!recvmsg->http.location) {
+        ogs_error("[%s] No http.location", amf_ue->supi);
+        nas_5gs_send_gmm_reject_from_sbi(
+                amf_ue, OGS_SBI_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+        return OGS_ERROR;
+    }
+
+    memset(&header, 0, sizeof(header));
+    header.uri = recvmsg->http.location;
+
+    rv = ogs_sbi_parse_header(&message, &header);
+    if (rv != OGS_OK) {
+        ogs_error("[%s] Cannot parse http.location [%s]",
+                amf_ue->supi, recvmsg->http.location);
+        nas_5gs_send_gmm_reject_from_sbi(
+                amf_ue, OGS_SBI_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+        return OGS_ERROR;
+    }
+
+    if (!message.h.resource.component[1]) {
+        ogs_error("[%s] No Assocation ID [%s]",
+                amf_ue->supi, recvmsg->http.location);
+
+        ogs_sbi_header_free(&header);
+        nas_5gs_send_gmm_reject_from_sbi(
+                amf_ue, OGS_SBI_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+        return OGS_ERROR;
+    }
+
+    if (amf_ue->pcf_association_id)
+        ogs_free(amf_ue->pcf_association_id);
+    amf_ue->pcf_association_id = ogs_strdup(message.h.resource.component[1]);
+
+    ogs_sbi_header_free(&header);
+
+    return OGS_OK;
 }

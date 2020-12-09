@@ -265,6 +265,10 @@ struct amf_ue_s {
     int num_of_requested_nssai;
     ogs_s_nssai_t   requested_nssai[OGS_MAX_NUM_OF_S_NSSAI];
 
+    /* PCF sends the RESPONSE
+     * of [POST] /npcf-am-polocy-control/v1/policies */
+    char *pcf_association_id;
+
     /* 5GMM Capability */
     struct {
         bool lte_positioning_protocol_capability;
