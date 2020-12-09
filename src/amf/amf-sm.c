@@ -157,32 +157,6 @@ void amf_state_operational(ogs_fsm_t *s, amf_event_t *e)
             END
             break;
 
-        CASE(OGS_SBI_SERVICE_NAME_NUDM_UECM)
-            SWITCH(sbi_message.h.resource.component[1])
-            CASE(OGS_SBI_RESOURCE_NAME_DEREG_NOTIFY)
-                SWITCH(sbi_message.h.method)
-                CASE(OGS_SBI_HTTP_METHOD_POST)
-                    ogs_error("Dereg-notify Not implemented");
-                    break;
-
-                DEFAULT
-                    ogs_error("Invalid HTTP method [%s]", sbi_message.h.method);
-                    ogs_sbi_server_send_error(stream,
-                            OGS_SBI_HTTP_STATUS_FORBIDDEN, &sbi_message,
-                            "Invalid HTTP method", sbi_message.h.method);
-                END
-                break;
-
-            DEFAULT
-                ogs_error("Invalid resource name [%s]",
-                        sbi_message.h.resource.component[0]);
-                ogs_sbi_server_send_error(stream,
-                        OGS_SBI_HTTP_STATUS_BAD_REQUEST, &sbi_message,
-                        "Invalid resource name",
-                        sbi_message.h.resource.component[0]);
-            END
-            break;
-
         CASE(OGS_SBI_SERVICE_NAME_NAMF_COMM)
             SWITCH(sbi_message.h.resource.component[0])
             CASE(OGS_SBI_RESOURCE_NAME_UE_CONTEXTS)
@@ -235,9 +209,13 @@ void amf_state_operational(ogs_fsm_t *s, amf_event_t *e)
                         stream, &sbi_message);
                 break;
 
-            CASE(OGS_SBI_RESOURCE_NAME_AM_POLICY_NOTIFY)
-                ogs_error("am-policy-notify not implemented");
+            /* TODO */
+#if 0
+            CASE(OGS_SBI_RESOURCE_NAME_DEREG_NOTIFY)
                 break;
+            CASE(OGS_SBI_RESOURCE_NAME_AM_POLICY_NOTIFY)
+                break;
+#endif
 
             DEFAULT
                 ogs_error("Invalid resource name [%s]",
