@@ -66,9 +66,9 @@ int amf_npcf_am_policy_control_handle_create(
         return OGS_ERROR;
     }
 
-    if (amf_ue->pcf_association_id)
-        ogs_free(amf_ue->pcf_association_id);
-    amf_ue->pcf_association_id = ogs_strdup(message.h.resource.component[1]);
+    if (amf_ue->policy_association_id)
+        ogs_free(amf_ue->policy_association_id);
+    amf_ue->policy_association_id = ogs_strdup(message.h.resource.component[1]);
 
     ogs_sbi_header_free(&header);
 

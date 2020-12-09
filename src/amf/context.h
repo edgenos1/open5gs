@@ -269,7 +269,7 @@ struct amf_ue_s {
 
     /* PCF sends the RESPONSE
      * of [POST] /npcf-am-polocy-control/v1/policies */
-    char *pcf_association_id;
+    char *policy_association_id;
 
     /* 5GMM Capability */
     struct {

@@ -1155,8 +1155,8 @@ void amf_ue_remove(amf_ue_t *amf_ue)
         ogs_free(amf_ue->msisdn[i]);
     }
 
-    if (amf_ue->pcf_association_id)
-        ogs_free(amf_ue->pcf_association_id);
+    if (amf_ue->policy_association_id)
+        ogs_free(amf_ue->policy_association_id);
 
     if (amf_ue->confirmation_url_for_5g_aka)
         ogs_free(amf_ue->confirmation_url_for_5g_aka);
