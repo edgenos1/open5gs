@@ -50,7 +50,7 @@ struct pcf_ue_s {
     ogs_sbi_object_t sbi;
     ogs_fsm_t sm;
 
-    OpenAPI_policy_association_request_t *policy_assocation_request;
+    OpenAPI_policy_association_request_t *policy_association_request;
 
     char *association_id;
     char *supi;

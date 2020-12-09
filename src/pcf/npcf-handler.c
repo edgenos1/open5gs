@@ -22,21 +22,47 @@
 #include "npcf-handler.h"
 
 bool pcf_npcf_am_policy_contrtol_handle_create(pcf_ue_t *pcf_ue,
-        ogs_sbi_stream_t *stream, ogs_sbi_message_t *recvmsg)
+        ogs_sbi_stream_t *stream, ogs_sbi_message_t *message)
 {
     OpenAPI_policy_association_request_t *PolicyAssociationRequest = NULL;
 
     ogs_assert(pcf_ue);
     ogs_assert(stream);
-    ogs_assert(recvmsg);
+    ogs_assert(message);
 
-    PolicyAssociationRequest = recvmsg->PolicyAssociationRequest;
+    PolicyAssociationRequest = message->PolicyAssociationRequest;
     if (!PolicyAssociationRequest) {
         ogs_error("[%s] No PolicyAssociationRequest", pcf_ue->supi);
         ogs_sbi_server_send_error(stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
-                recvmsg, "[%s] No PolicyAssociationRequest", pcf_ue->supi);
+                message, "[%s] No PolicyAssociationRequest", pcf_ue->supi);
         return false;
     }
+
+    if (!PolicyAssociationRequest->notification_uri) {
+        ogs_error("[%s] No notificationUri", pcf_ue->supi);
+        ogs_sbi_server_send_error(stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
+                message, "No notificationUri", pcf_ue->supi);
+        return false;
+    }
+
+    if (!PolicyAssociationRequest->supi) {
+        ogs_error("[%s] No supi", pcf_ue->supi);
+        ogs_sbi_server_send_error(stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
+                message, "No supi", pcf_ue->supi);
+        return false;
+    }
+
+    if (!PolicyAssociationRequest->supp_feat) {
+        ogs_error("[%s] No suppFeat", pcf_ue->supi);
+        ogs_sbi_server_send_error(stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
+                message, "No suppFeat", pcf_ue->supi);
+        return false;
+    }
+
+    pcf_ue->policy_association_request =
+        OpenAPI_policy_association_request_copy(
+                pcf_ue->policy_association_request,
+                message->PolicyAssociationRequest);
 
     pcf_sbi_discover_and_send(OpenAPI_nf_type_PCF, pcf_ue, stream, NULL,
             pcf_nudr_dr_build_query_am_data);

@@ -156,7 +156,7 @@ void pcf_ue_remove(pcf_ue_t *pcf_ue)
     /* Free SBI object memory */
     ogs_sbi_object_free(&pcf_ue->sbi);
 
-    OpenAPI_policy_association_request_free(pcf_ue->policy_assocation_request);
+    OpenAPI_policy_association_request_free(pcf_ue->policy_association_request);
 
     ogs_assert(pcf_ue->association_id);
     ogs_free(pcf_ue->association_id);
