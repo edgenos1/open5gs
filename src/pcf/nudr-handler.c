@@ -30,8 +30,6 @@ bool pcf_nudr_dr_handle_query_am_data(
 
     int status;
 
-    OpenAPI_policy_association_request_t *PolicyAssociationRequest = NULL;
-
     ogs_assert(pcf_ue);
     ogs_assert(stream);
     server = ogs_sbi_server_from_stream(stream);
@@ -43,8 +41,17 @@ bool pcf_nudr_dr_handle_query_am_data(
     CASE(OGS_SBI_RESOURCE_NAME_UES)
         SWITCH(recvmsg->h.resource.component[3])
         CASE(OGS_SBI_RESOURCE_NAME_AM_DATA)
-            PolicyAssociationRequest = pcf_ue->policy_association_request;
-            if (!PolicyAssociationRequest) {
+            OpenAPI_policy_association_t PolicyAssociation;
+
+            if (!recvmsg->AmPolicyData) {
+                ogs_error("[%s] No AmPolicyData", pcf_ue->supi);
+                ogs_sbi_server_send_error(
+                        stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
+                        recvmsg, "No AmPolicyData", pcf_ue->supi);
+                return false;
+            }
+
+            if (!pcf_ue->policy_association_request) {
                 ogs_error("[%s] No PolicyAssociationRequest", pcf_ue->supi);
                 ogs_sbi_server_send_error(
                         stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
@@ -52,9 +59,14 @@ bool pcf_nudr_dr_handle_query_am_data(
                 return false;
             }
 
-            memset(&sendmsg, 0, sizeof(sendmsg));
+            memset(&PolicyAssociation, 0, sizeof(PolicyAssociation));
+            PolicyAssociation.request = pcf_ue->policy_association_request;
+            PolicyAssociation.supp_feat = (char *)"";
 
-            status = OGS_SBI_HTTP_STATUS_NO_CONTENT;
+            memset(&sendmsg, 0, sizeof(sendmsg));
+            sendmsg.PolicyAssociation = &PolicyAssociation;
+
+            status = OGS_SBI_HTTP_STATUS_CREATED;
 
             response = ogs_sbi_build_response(&sendmsg, status);
             ogs_assert(response);
