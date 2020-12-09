@@ -266,6 +266,9 @@ typedef struct ogs_sbi_message_s {
     OpenAPI_policy_association_request_t *PolicyAssociationRequest;
     OpenAPI_policy_association_t *PolicyAssociation;
     OpenAPI_am_policy_data_t *AmPolicyData;
+    OpenAPI_sm_policy_context_data_t *SmPolicyContextData;
+    OpenAPI_sm_policy_decision_t *SmPolicyDecision;
+    OpenAPI_sm_policy_data_t *SmPolicyData;
 
     ogs_sbi_links_t *links;
 
