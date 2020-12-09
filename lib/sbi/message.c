@@ -1335,7 +1335,7 @@ static int parse_json(ogs_sbi_message_t *message,
                         rv = OGS_ERROR;
                         ogs_error("JSON parse error");
                     }
-                } else if (message->res_status == OGS_SBI_HTTP_STATUS_OK) {
+                } else if (message->res_status == OGS_SBI_HTTP_STATUS_CREATED) {
                     message->PolicyAssociation =
                         OpenAPI_policy_association_parseFromJSON(item);
                     if (!message->PolicyAssociation) {

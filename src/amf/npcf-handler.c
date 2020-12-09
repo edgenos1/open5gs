@@ -27,6 +27,8 @@ int amf_npcf_am_policy_control_handle_create(
 {
     int rv;
 
+    OpenAPI_policy_association_t *PolicyAssociation = NULL;
+
     ogs_sbi_message_t message;
     ogs_sbi_header_t header;
 
@@ -39,6 +41,21 @@ int amf_npcf_am_policy_control_handle_create(
 
     if (!recvmsg->http.location) {
         ogs_error("[%s] No http.location", amf_ue->supi);
+        nas_5gs_send_gmm_reject_from_sbi(
+                amf_ue, OGS_SBI_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+        return OGS_ERROR;
+    }
+
+    PolicyAssociation = recvmsg->PolicyAssociation;
+    if (!PolicyAssociation) {
+        ogs_error("No PolicyAssociation");
+        nas_5gs_send_gmm_reject_from_sbi(
+                amf_ue, OGS_SBI_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+        return OGS_ERROR;
+    }
+
+    if (!PolicyAssociation->supp_feat) {
+        ogs_error("No suppFeat");
         nas_5gs_send_gmm_reject_from_sbi(
                 amf_ue, OGS_SBI_HTTP_STATUS_INTERNAL_SERVER_ERROR);
         return OGS_ERROR;
