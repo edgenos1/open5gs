@@ -302,6 +302,7 @@ void amf_nnrf_handle_nf_discover(
         switch(xact->target_nf_type) {
         case OpenAPI_nf_type_AUSF:
         case OpenAPI_nf_type_UDM:
+        case OpenAPI_nf_type_PCF:
             amf_ue = (amf_ue_t *)sbi_object;
             ogs_assert(amf_ue);
             ogs_error("[%s] (NF discover) No [%s]", amf_ue->suci,
@@ -326,6 +327,7 @@ void amf_nnrf_handle_nf_discover(
         default:
             ogs_fatal("(NF discover) Not implemented [%s]",
                 OpenAPI_nf_type_ToString(xact->target_nf_type));
+            ogs_assert_if_reached();
         }
     } else {
         amf_sbi_send(nf_instance, xact);

@@ -701,6 +701,7 @@ void gmm_state_security_mode(ogs_fsm_t *s, amf_event_t *e)
 #endif
             } else {
                 ogs_fatal("Invalid OGS_NAS_5GS[%d]", amf_ue->nas.message_type);
+                ogs_assert_if_reached();
             }
             break;
         case OGS_NAS_5GS_SECURITY_MODE_REJECT:
