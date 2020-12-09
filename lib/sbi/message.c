@@ -143,6 +143,12 @@ void ogs_sbi_message_free(ogs_sbi_message_t *message)
         OpenAPI_policy_association_free(message->PolicyAssociation);
     if (message->AmPolicyData)
         OpenAPI_am_policy_data_free(message->AmPolicyData);
+    if (message->SmPolicyContextData)
+        OpenAPI_sm_policy_context_data_free(message->SmPolicyContextData);
+    if (message->SmPolicyDecision)
+        OpenAPI_sm_policy_decision_free(message->SmPolicyDecision);
+    if (message->SmPolicyData)
+        OpenAPI_sm_policy_data_free(message->SmPolicyData);
 
     for (i = 0; i < message->num_of_part; i++) {
         if (message->part[i].pkbuf)
@@ -737,6 +743,17 @@ static char *build_json(ogs_sbi_message_t *message)
     } else if (message->AmPolicyData) {
         item = OpenAPI_am_policy_data_convertToJSON(message->AmPolicyData);
         ogs_assert(item);
+    } else if (message->SmPolicyContextData) {
+        item = OpenAPI_sm_policy_context_data_convertToJSON(
+                message->SmPolicyContextData);
+        ogs_assert(item);
+    } else if (message->SmPolicyDecision) {
+        item = OpenAPI_sm_policy_decision_convertToJSON(
+                message->SmPolicyDecision);
+        ogs_assert(item);
+    } else if (message->SmPolicyData) {
+        item = OpenAPI_sm_policy_data_convertToJSON(message->SmPolicyData);
+        ogs_assert(item);
     }
 
     if (item) {
@@ -1134,6 +1151,16 @@ static int parse_json(ogs_sbi_message_t *message,
                         }
                         break;
 
+                    CASE(OGS_SBI_RESOURCE_NAME_SM_DATA)
+
+                        message->SmPolicyData =
+                            OpenAPI_sm_policy_data_parseFromJSON(item);
+                        if (!message->SmPolicyData) {
+                            rv = OGS_ERROR;
+                            ogs_error("JSON parse error");
+                        }
+                        break;
+
                     DEFAULT
                         rv = OGS_ERROR;
                         ogs_error("Unknown resource name [%s]",
@@ -1312,6 +1339,33 @@ static int parse_json(ogs_sbi_message_t *message,
                     message->PolicyAssociation =
                         OpenAPI_policy_association_parseFromJSON(item);
                     if (!message->PolicyAssociation) {
+                        rv = OGS_ERROR;
+                        ogs_error("JSON parse error");
+                    }
+                }
+                break;
+
+            DEFAULT
+                rv = OGS_ERROR;
+                ogs_error("Unknown resource name [%s]",
+                        message->h.resource.component[0]);
+            END
+            break;
+
+        CASE(OGS_SBI_SERVICE_NAME_NPCF_SMPOLICYCONTROL)
+            SWITCH(message->h.resource.component[0])
+            CASE(OGS_SBI_RESOURCE_NAME_SM_POLICIES)
+                if (message->res_status == 0) {
+                    message->SmPolicyContextData =
+                        OpenAPI_sm_policy_context_data_parseFromJSON(item);
+                    if (!message->SmPolicyContextData) {
+                        rv = OGS_ERROR;
+                        ogs_error("JSON parse error");
+                    }
+                } else if (message->res_status == OGS_SBI_HTTP_STATUS_CREATED) {
+                    message->SmPolicyDecision =
+                        OpenAPI_sm_policy_decision_parseFromJSON(item);
+                    if (!message->SmPolicyDecision) {
                         rv = OGS_ERROR;
                         ogs_error("JSON parse error");
                     }
