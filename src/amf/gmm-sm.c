@@ -877,6 +877,18 @@ void gmm_state_initial_context_setup(ogs_fsm_t *s, amf_event_t *e)
             CASE(OGS_SBI_RESOURCE_NAME_UE_CONTEXT_IN_SMF_DATA)
                 amf_ue_sbi_discover_and_send(OpenAPI_nf_type_PCF, amf_ue,
                     NULL, amf_npcf_am_policy_control_build_create);
+                break;
+
+            DEFAULT
+                ogs_error("Invalid resource name [%s]",
+                        sbi_message->h.resource.component[1]);
+                ogs_assert_if_reached();
+            END
+            break;
+
+        CASE(OGS_SBI_SERVICE_NAME_NPCF_AM_POLICY_CONTROL)
+            SWITCH(sbi_message->h.resource.component[0])
+            CASE(OGS_SBI_RESOURCE_NAME_POLICIES)
                 /*
                  * Issues #553
                  *
@@ -911,13 +923,10 @@ void gmm_state_initial_context_setup(ogs_fsm_t *s, amf_event_t *e)
 
             DEFAULT
                 ogs_error("Invalid resource name [%s]",
-                        sbi_message->h.resource.component[1]);
+                        sbi_message->h.resource.component[0]);
                 ogs_assert_if_reached();
             END
-            break;
 
-        CASE(OGS_SBI_SERVICE_NAME_NPCF_AM_POLICY_CONTROL)
-            ogs_fatal("asdlkfjasdfasdf");
             break;
 
         DEFAULT
