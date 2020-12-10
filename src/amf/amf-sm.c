@@ -486,10 +486,11 @@ void amf_state_operational(ogs_fsm_t *s, amf_event_t *e)
             sbi_object = sbi_xact->sbi_object;
             ogs_assert(sbi_object);
 
-            switch(sbi_xact->target_nf_type) {
-            case OpenAPI_nf_type_AUSF:
-            case OpenAPI_nf_type_UDM:
-            case OpenAPI_nf_type_PCF:
+            ogs_assert(sbi_object->type > OGS_SBI_OBJ_BASE &&
+                        sbi_object->type < OGS_SBI_OBJ_TOP);
+
+            switch(sbi_object->type) {
+            case OGS_SBI_OBJ_UE_TYPE:
                 amf_ue = (amf_ue_t *)sbi_object;
                 ogs_assert(amf_ue);
                 ogs_error("[%s] Cannot receive SBI message", amf_ue->suci);
@@ -497,7 +498,7 @@ void amf_state_operational(ogs_fsm_t *s, amf_event_t *e)
                         OGS_SBI_HTTP_STATUS_GATEWAY_TIMEOUT);
                 break;
 
-            case OpenAPI_nf_type_SMF:
+            case OGS_SBI_OBJ_SESS_TYPE:
                 sess = (amf_sess_t *)sbi_object;
                 ogs_assert(sess);
                 ogs_error("[%d:%d] Cannot receive SBI message",
@@ -513,8 +514,9 @@ void amf_state_operational(ogs_fsm_t *s, amf_event_t *e)
                 break;
 
             default:
-                ogs_fatal("Not implemented [%s]",
-                    OpenAPI_nf_type_ToString(sbi_xact->target_nf_type));
+                ogs_fatal("Not implemented [%s:%d]",
+                    OpenAPI_nf_type_ToString(sbi_xact->target_nf_type),
+                    sbi_object->type);
                 ogs_assert_if_reached();
             }
 

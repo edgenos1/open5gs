@@ -1082,6 +1082,8 @@ amf_ue_t *amf_ue_add(ran_ue_t *ran_ue)
     ogs_assert(amf_ue);
     memset(amf_ue, 0, sizeof *amf_ue);
 
+    amf_ue->sbi.type = OGS_SBI_OBJ_UE_TYPE;
+
     ogs_list_init(&amf_ue->sess_list);
 
     /* TODO : Hard-coded */
@@ -1461,6 +1463,8 @@ amf_sess_t *amf_sess_add(amf_ue_t *amf_ue, uint8_t psi)
     ogs_pool_alloc(&amf_sess_pool, &sess);
     ogs_assert(sess);
     memset(sess, 0, sizeof *sess);
+
+    sess->sbi.type = OGS_SBI_OBJ_SESS_TYPE;
 
     sess->amf_ue = amf_ue;
     sess->psi = psi;
