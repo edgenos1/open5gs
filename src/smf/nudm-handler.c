@@ -19,6 +19,7 @@
 
 #include "nudm-handler.h"
 #include "pfcp-path.h"
+#include "sbi-path.h"
 
 bool smf_nudm_sdm_handle_get(smf_sess_t *sess, ogs_sbi_stream_t *stream,
         ogs_sbi_message_t *recvmsg)
@@ -235,6 +236,9 @@ bool smf_nudm_sdm_handle_get(smf_sess_t *sess, ogs_sbi_stream_t *stream,
         ogs_error("[%s] No associated UPF", smf_ue->supi);
         return false;
     }
+
+    smf_sbi_discover_and_send(OpenAPI_nf_type_PCF, sess, stream, NULL,
+            smf_npcf_smpolicycontrol_build_create);
 
     /*********************************************************************
      * Send HTTP_STATUS_CREATED(/nsmf-pdusession/v1/sm-context) to the AMF

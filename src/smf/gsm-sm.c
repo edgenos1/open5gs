@@ -136,6 +136,28 @@ void smf_gsm_state_operational(ogs_fsm_t *s, smf_event_t *e)
             END
             break;
 
+        CASE(OGS_SBI_SERVICE_NAME_NPCF_SMPOLICYCONTROL)
+            SWITCH(sbi_message->h.resource.component[0])
+            CASE(OGS_SBI_RESOURCE_NAME_SM_POLICIES)
+                if (sbi_message->res_status != OGS_SBI_HTTP_STATUS_CREATED) {
+                    ogs_error("[%s] HTTP response error [%d]",
+                        smf_ue->supi, sbi_message->res_status);
+                    ogs_sbi_server_send_error(
+                        stream, sbi_message->res_status,
+                        NULL, "HTTP response error", smf_ue->supi);
+                    break;
+                }
+
+            DEFAULT
+                ogs_error("Invalid resource name [%s]",
+                        sbi_message->h.resource.component[0]);
+                ogs_sbi_server_send_error(stream,
+                        OGS_SBI_HTTP_STATUS_BAD_REQUEST, sbi_message,
+                        "Invalid resource name",
+                        sbi_message->h.resource.component[0]);
+            END
+            break;
+
         CASE(OGS_SBI_SERVICE_NAME_NAMF_COMM)
             SWITCH(sbi_message->h.resource.component[0])
             CASE(OGS_SBI_RESOURCE_NAME_UE_CONTEXTS)
