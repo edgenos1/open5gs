@@ -118,6 +118,9 @@ typedef struct ogs_sbi_xact_s {
     ogs_lnode_t lnode;
 
     OpenAPI_nf_type_e target_nf_type;
+#define OGS_SBI_XACT_UE_TYPE 1
+#define OGS_SBI_XACT_SESS_TYPE 2
+    uint8_t type;
 
     ogs_sbi_request_t *request;
     ogs_timer_t *t_response;
