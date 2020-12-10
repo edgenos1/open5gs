@@ -28,7 +28,7 @@ libpcf_sources = files('''
     nudr-build.c
     nudr-handler.c
 
-    ue-sm.c
+    am-sm.c
 
     sbi-path.c
     pcf-sm.c
