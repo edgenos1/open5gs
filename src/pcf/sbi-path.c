@@ -123,28 +123,49 @@ void pcf_sbi_send(ogs_sbi_nf_instance_t *nf_instance, ogs_sbi_xact_t *xact)
     ogs_sbi_send(nf_instance, client_cb, xact);
 }
 
-void pcf_sbi_discover_and_send(OpenAPI_nf_type_e target_nf_type,
-        pcf_ue_t *pcf_ue, ogs_sbi_stream_t *stream, void *data,
-        ogs_sbi_request_t *(*build)(pcf_ue_t *pcf_ue, void *data))
+static bool pcf_sbi_discover_and_send(OpenAPI_nf_type_e target_nf_type,
+        ogs_sbi_object_t *sbi_object, ogs_sbi_stream_t *stream, void *data,
+        ogs_sbi_build_f build)
 {
     ogs_sbi_xact_t *xact = NULL;
 
     ogs_assert(target_nf_type);
-    ogs_assert(pcf_ue);
+    ogs_assert(sbi_object);
     ogs_assert(stream);
     ogs_assert(build);
 
-    xact = ogs_sbi_xact_add(target_nf_type, &pcf_ue->sbi, data,
-            (ogs_sbi_build_f)build, pcf_timer_sbi_client_wait_expire);
+    xact = ogs_sbi_xact_add(target_nf_type, sbi_object, data,
+                            build, pcf_timer_sbi_client_wait_expire);
     ogs_assert(xact);
 
     xact->assoc_stream = stream;
 
-    if (ogs_sbi_discover_and_send(xact,
-            (ogs_fsm_handler_t)pcf_nf_state_registered, client_cb) != true) {
+    return ogs_sbi_discover_and_send(xact,
+            (ogs_fsm_handler_t)pcf_nf_state_registered, client_cb);
+}
 
+void pcf_ue_sbi_discover_and_send(OpenAPI_nf_type_e target_nf_type,
+        pcf_ue_t *pcf_ue, ogs_sbi_stream_t *stream, void *data,
+        ogs_sbi_request_t *(*build)(pcf_ue_t *pcf_ue, void *data))
+{
+    if (pcf_sbi_discover_and_send(
+                target_nf_type, &pcf_ue->sbi, stream, data,
+                (ogs_sbi_build_f)build) != true) {
         ogs_sbi_server_send_error(stream,
                 OGS_SBI_HTTP_STATUS_GATEWAY_TIMEOUT, NULL,
                 "Cannot discover", pcf_ue->supi);
+    }
+}
+
+void pcf_sess_sbi_discover_and_send(OpenAPI_nf_type_e target_nf_type,
+        pcf_sess_t *sess, ogs_sbi_stream_t *stream, void *data,
+        ogs_sbi_request_t *(*build)(pcf_sess_t *sess, void *data))
+{
+    if (pcf_sbi_discover_and_send(
+                target_nf_type, &sess->sbi, stream, data,
+                (ogs_sbi_build_f)build) != true) {
+        ogs_sbi_server_send_error(stream,
+                OGS_SBI_HTTP_STATUS_GATEWAY_TIMEOUT, NULL,
+                "Cannot discover", NULL);
     }
 }

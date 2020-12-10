@@ -79,7 +79,7 @@ bool pcf_npcf_am_policy_contrtol_handle_create(pcf_ue_t *pcf_ue,
                 pcf_ue->policy_association_request,
                 message->PolicyAssociationRequest);
 
-    pcf_sbi_discover_and_send(OpenAPI_nf_type_UDR, pcf_ue, stream, NULL,
+    pcf_ue_sbi_discover_and_send(OpenAPI_nf_type_UDR, pcf_ue, stream, NULL,
             pcf_nudr_dr_build_query_am_data);
 
     return true;
