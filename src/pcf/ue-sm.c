@@ -23,18 +23,18 @@
 #include "npcf-handler.h"
 #include "nudr-handler.h"
 
-void pcf_am_state_initial(ogs_fsm_t *s, pcf_event_t *e)
+void pcf_ue_state_initial(ogs_fsm_t *s, pcf_event_t *e)
 {
     ogs_assert(s);
 
-    OGS_FSM_TRAN(s, &pcf_am_state_operational);
+    OGS_FSM_TRAN(s, &pcf_ue_state_operational);
 }
 
-void pcf_am_state_final(ogs_fsm_t *s, pcf_event_t *e)
+void pcf_ue_state_final(ogs_fsm_t *s, pcf_event_t *e)
 {
 }
 
-void pcf_am_state_operational(ogs_fsm_t *s, pcf_event_t *e)
+void pcf_ue_state_operational(ogs_fsm_t *s, pcf_event_t *e)
 {
     bool handled;
     pcf_ue_t *pcf_ue = NULL;
@@ -69,7 +69,7 @@ void pcf_am_state_operational(ogs_fsm_t *s, pcf_event_t *e)
                     pcf_ue, stream, message);
             if (!handled) {
                 ogs_error("[%s] Cannot handle SBI message", pcf_ue->supi);
-                OGS_FSM_TRAN(s, pcf_am_state_exception);
+                OGS_FSM_TRAN(s, pcf_ue_state_exception);
             }
             break;
         DEFAULT
@@ -134,7 +134,7 @@ void pcf_am_state_operational(ogs_fsm_t *s, pcf_event_t *e)
     }
 }
 
-void pcf_am_state_exception(ogs_fsm_t *s, pcf_event_t *e)
+void pcf_ue_state_exception(ogs_fsm_t *s, pcf_event_t *e)
 {
     pcf_ue_t *pcf_ue = NULL;
     ogs_assert(s);
