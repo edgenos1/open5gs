@@ -84,3 +84,74 @@ bool pcf_npcf_am_policy_contrtol_handle_create(pcf_ue_t *pcf_ue,
 
     return true;
 }
+
+bool pcf_npcf_smpolicycontrtol_handle_create(pcf_sess_t *sess,
+        ogs_sbi_stream_t *stream, ogs_sbi_message_t *message)
+{
+    pcf_ue_t *pcf_ue = NULL;
+
+#if 0
+    OpenAPI_policy_association_request_t *PolicyAssociationRequest = NULL;
+    OpenAPI_guami_t *Guami = NULL;
+#endif
+
+    ogs_assert(sess);
+    pcf_ue = sess->pcf_ue;
+    ogs_assert(stream);
+    ogs_assert(message);
+
+#if 0
+    PolicyAssociationRequest = message->PolicyAssociationRequest;
+    if (!PolicyAssociationRequest) {
+        ogs_error("[%s] No PolicyAssociationRequest", pcf_ue->supi);
+        ogs_sbi_server_send_error(stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
+                message, "[%s] No PolicyAssociationRequest", pcf_ue->supi);
+        return false;
+    }
+
+    if (!PolicyAssociationRequest->notification_uri) {
+        ogs_error("[%s] No notificationUri", pcf_ue->supi);
+        ogs_sbi_server_send_error(stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
+                message, "No notificationUri", pcf_ue->supi);
+        return false;
+    }
+
+    if (!PolicyAssociationRequest->supi) {
+        ogs_error("[%s] No supi", pcf_ue->supi);
+        ogs_sbi_server_send_error(stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
+                message, "No supi", pcf_ue->supi);
+        return false;
+    }
+
+    if (!PolicyAssociationRequest->supp_feat) {
+        ogs_error("[%s] No suppFeat", pcf_ue->supi);
+        ogs_sbi_server_send_error(stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
+                message, "No suppFeat", pcf_ue->supi);
+        return false;
+    }
+
+    if (pcf_ue->notification_uri)
+        ogs_free(pcf_ue->notification_uri);
+    pcf_ue->notification_uri = ogs_strdup(
+            PolicyAssociationRequest->notification_uri);
+
+    Guami = PolicyAssociationRequest->guami;
+    if (Guami && Guami->amf_id &&
+        Guami->plmn_id && Guami->plmn_id->mnc && Guami->plmn_id->mcc) {
+        ogs_sbi_parse_guami(&pcf_ue->guami, PolicyAssociationRequest->guami);
+    }
+
+    if (PolicyAssociationRequest->rat_type)
+        pcf_ue->rat_type = PolicyAssociationRequest->rat_type;
+
+    pcf_ue->policy_association_request =
+        OpenAPI_policy_association_request_copy(
+                pcf_ue->policy_association_request,
+                message->PolicyAssociationRequest);
+
+    pcf_ue_sbi_discover_and_send(OpenAPI_nf_type_UDR, pcf_ue, stream, NULL,
+            pcf_nudr_dr_build_query_am_data);
+#endif
+
+    return true;
+}

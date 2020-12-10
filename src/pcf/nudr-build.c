@@ -41,3 +41,28 @@ ogs_sbi_request_t *pcf_nudr_dr_build_query_am_data(
 
     return request;
 }
+
+ogs_sbi_request_t *pcf_nudr_dr_build_query_sm_data(
+        pcf_sess_t *sess, void *data)
+{
+    ogs_sbi_message_t message;
+    ogs_sbi_request_t *request = NULL;
+
+    ogs_assert(sess);
+
+#if 0
+    memset(&message, 0, sizeof(message));
+    message.h.method = (char *)OGS_SBI_HTTP_METHOD_GET;
+    message.h.service.name = (char *)OGS_SBI_SERVICE_NAME_NUDR_DR;
+    message.h.api.version = (char *)OGS_SBI_API_V1;
+    message.h.resource.component[0] = (char *)OGS_SBI_RESOURCE_NAME_POLICY_DATA;
+    message.h.resource.component[1] = (char *)OGS_SBI_RESOURCE_NAME_UES;
+    message.h.resource.component[2] = pcf_ue->supi;
+    message.h.resource.component[3] = (char *)OGS_SBI_RESOURCE_NAME_AM_DATA;
+
+    request = ogs_sbi_build_request(&message);
+    ogs_assert(request);
+#endif
+
+    return request;
+}

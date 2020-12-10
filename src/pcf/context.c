@@ -198,6 +198,7 @@ pcf_ue_t *pcf_ue_find_by_association_id(char *association_id)
 
 pcf_sess_t *pcf_sess_add(pcf_ue_t *pcf_ue, uint8_t psi)
 {
+    pcf_event_t e;
     pcf_sess_t *sess = NULL;
 
     ogs_assert(pcf_ue);
@@ -215,6 +216,11 @@ pcf_sess_t *pcf_sess_add(pcf_ue_t *pcf_ue, uint8_t psi)
     sess->s_nssai.sst = 0;
     sess->s_nssai.sd.v = OGS_S_NSSAI_NO_SD_VALUE;
 
+    memset(&e, 0, sizeof(e));
+    e.sess = sess;
+    ogs_fsm_create(&sess->sm, pcf_sm_state_initial, pcf_sm_state_final);
+    ogs_fsm_init(&sess->sm, &e);
+
     ogs_list_add(&pcf_ue->sess_list, sess);
 
     return sess;
@@ -222,10 +228,17 @@ pcf_sess_t *pcf_sess_add(pcf_ue_t *pcf_ue, uint8_t psi)
 
 void pcf_sess_remove(pcf_sess_t *sess)
 {
+    pcf_event_t e;
+
     ogs_assert(sess);
     ogs_assert(sess->pcf_ue);
 
     ogs_list_remove(&sess->pcf_ue->sess_list, sess);
+
+    memset(&e, 0, sizeof(e));
+    e.sess = sess;
+    ogs_fsm_fini(&sess->sm, &e);
+    ogs_fsm_delete(&sess->sm);
 
     /* Free SBI object memory */
     ogs_sbi_object_free(&sess->sbi);

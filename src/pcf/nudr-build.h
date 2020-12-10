@@ -29,6 +29,9 @@ extern "C" {
 ogs_sbi_request_t *pcf_nudr_dr_build_query_am_data(
         pcf_ue_t *pcf_ue, void *data);
 
+ogs_sbi_request_t *pcf_nudr_dr_build_query_sm_data(
+        pcf_sess_t *sess, void *data);
+
 #ifdef __cplusplus
 }
 #endif

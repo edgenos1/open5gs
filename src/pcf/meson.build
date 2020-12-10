@@ -29,6 +29,7 @@ libpcf_sources = files('''
     nudr-handler.c
 
     am-sm.c
+    sm-sm.c
 
     sbi-path.c
     pcf-sm.c

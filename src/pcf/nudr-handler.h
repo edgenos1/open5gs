@@ -29,6 +29,9 @@ extern "C" {
 bool pcf_nudr_dr_handle_query_am_data(
     pcf_ue_t *pcf_ue, ogs_sbi_stream_t *stream, ogs_sbi_message_t *recvmsg);
 
+bool pcf_nudr_dr_handle_query_sm_data(
+    pcf_sess_t *sess, ogs_sbi_stream_t *stream, ogs_sbi_message_t *recvmsg);
+
 #ifdef __cplusplus
 }
 #endif
