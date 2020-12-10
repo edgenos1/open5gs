@@ -212,6 +212,10 @@ pcf_sess_t *pcf_sess_add(pcf_ue_t *pcf_ue, uint8_t psi)
 
     sess->sbi.type = OGS_SBI_OBJ_SESS_TYPE;
 
+    sess->sm_policy_id = ogs_msprintf("%d",
+            (int)ogs_pool_index(&pcf_sess_pool, sess));
+    ogs_assert(sess->sm_policy_id);
+
     sess->pcf_ue = pcf_ue;
     sess->psi = psi;
 
@@ -245,6 +249,9 @@ void pcf_sess_remove(pcf_sess_t *sess)
     /* Free SBI object memory */
     ogs_sbi_object_free(&sess->sbi);
 
+    ogs_assert(sess->sm_policy_id);
+    ogs_free(sess->sm_policy_id);
+
     if (sess->dnn)
         ogs_free(sess->dnn);
 
@@ -262,6 +269,18 @@ void pcf_sess_remove_all(pcf_ue_t *pcf_ue)
 
     ogs_list_for_each_safe(&pcf_ue->sess_list, next_sess, sess)
         pcf_sess_remove(sess);
+}
+
+pcf_sess_t *pcf_sess_find_by_sm_policy_id(pcf_ue_t *pcf_ue, char *sm_policy_id)
+{
+    pcf_sess_t *sess = NULL;
+
+    ogs_assert(sm_policy_id);
+
+    ogs_list_for_each(&pcf_ue->sess_list, sess)
+        if (!strcmp(sess->sm_policy_id, sm_policy_id)) return sess;
+
+    return NULL;
 }
 
 pcf_sess_t *pcf_sess_find_by_psi(pcf_ue_t *pcf_ue, uint8_t psi)

@@ -21,6 +21,7 @@
 #include "nnrf-handler.h"
 #include "nsmf-handler.h"
 #include "nudm-handler.h"
+#include "npcf-handler.h"
 #include "gsm-handler.h"
 #include "ngap-handler.h"
 #include "pfcp-path.h"
@@ -145,6 +146,13 @@ void smf_gsm_state_operational(ogs_fsm_t *s, smf_event_t *e)
                     ogs_sbi_server_send_error(
                         stream, sbi_message->res_status,
                         NULL, "HTTP response error", smf_ue->supi);
+                    break;
+                }
+
+                rv = smf_npcf_smpolicycontrol_handle_create(sess, sbi_message);
+                if (rv != OGS_OK) {
+                    ogs_error("smf_npcf_smpolicycontrol_handle_create() "
+                            "failed");
                     break;
                 }
 
