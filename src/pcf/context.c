@@ -132,7 +132,7 @@ pcf_ue_t *pcf_ue_add(char *supi)
 
     memset(&e, 0, sizeof(e));
     e.pcf_ue = pcf_ue;
-    ogs_fsm_create(&pcf_ue->sm, pcf_ue_state_initial, pcf_ue_state_final);
+    ogs_fsm_create(&pcf_ue->sm, pcf_am_state_initial, pcf_am_state_final);
     ogs_fsm_init(&pcf_ue->sm, &e);
 
     ogs_list_add(&self.pcf_ue_list, pcf_ue);

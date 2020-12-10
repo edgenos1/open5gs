@@ -149,7 +149,7 @@ void pcf_state_operational(ogs_fsm_t *s, pcf_event_t *e)
             e->pcf_ue = pcf_ue;
             e->sbi.message = &message;
             ogs_fsm_dispatch(&pcf_ue->sm, e);
-            if (OGS_FSM_CHECK(&pcf_ue->sm, pcf_ue_state_exception)) {
+            if (OGS_FSM_CHECK(&pcf_ue->sm, pcf_am_state_exception)) {
                 ogs_error("[%s] State machine exception", pcf_ue->supi);
                 pcf_ue_remove(pcf_ue);
             }
@@ -285,7 +285,7 @@ void pcf_state_operational(ogs_fsm_t *s, pcf_event_t *e)
                 ogs_sbi_xact_remove(sbi_xact);
 
                 ogs_fsm_dispatch(&pcf_ue->sm, e);
-                if (OGS_FSM_CHECK(&pcf_ue->sm, pcf_ue_state_exception)) {
+                if (OGS_FSM_CHECK(&pcf_ue->sm, pcf_am_state_exception)) {
                     ogs_error("[%s] State machine exception", pcf_ue->supi);
                     pcf_ue_remove(pcf_ue);
                 }
