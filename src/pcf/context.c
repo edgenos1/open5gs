@@ -248,6 +248,9 @@ void pcf_sess_remove(pcf_sess_t *sess)
     if (sess->dnn)
         ogs_free(sess->dnn);
 
+    if (sess->notification_uri)
+        ogs_free(sess->notification_uri);
+
     ogs_pool_free(&pcf_sess_pool, sess);
 }
 

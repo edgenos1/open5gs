@@ -85,8 +85,10 @@ struct pcf_sess_s {
 
     uint8_t psi; /* PDU Session Identity */
 
-    ogs_s_nssai_t s_nssai;
+    uint8_t pdu_session_type;
     char *dnn;
+    char *notification_uri;
+    ogs_s_nssai_t s_nssai;
 
     /* Related Context */
     pcf_ue_t        *pcf_ue;

@@ -146,7 +146,8 @@ extern "C" {
 #define OGS_SBI_PARAM_LIMIT                         "limit"
 #define OGS_SBI_PARAM_DNN                           "dnn"
 #define OGS_SBI_PARAM_PLMN_ID                       "plmn-id"
-#define OGS_SBI_PARAM_S_NSSAI                       "single-nssai"
+#define OGS_SBI_PARAM_SINGLE_NSSAI                  "single-nssai"
+#define OGS_SBI_PARAM_SNSSAI                        "snssai"
 
 #define OGS_SBI_ACCEPT                              "Accept"
 #define OGS_SBI_ACCEPT_ENCODING                     "Accept-Encoding"
@@ -228,7 +229,10 @@ typedef struct ogs_sbi_message_s {
         char *dnn;
         bool plmn_id_presence;
         ogs_plmn_id_t plmn_id;
-        bool s_nssai_presence;
+
+        bool single_nssai_presence; /* Encoder : single-nssai */
+        bool snssai_presence;       /* Encoder : snssai */
+        bool s_nssai_presence;      /* Decoder */
         ogs_s_nssai_t s_nssai;
     } param;
 

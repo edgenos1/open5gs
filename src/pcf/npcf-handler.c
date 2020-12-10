@@ -88,70 +88,83 @@ bool pcf_npcf_am_policy_contrtol_handle_create(pcf_ue_t *pcf_ue,
 bool pcf_npcf_smpolicycontrtol_handle_create(pcf_sess_t *sess,
         ogs_sbi_stream_t *stream, ogs_sbi_message_t *message)
 {
+    char *strerror = NULL;
     pcf_ue_t *pcf_ue = NULL;
 
-#if 0
-    OpenAPI_policy_association_request_t *PolicyAssociationRequest = NULL;
-    OpenAPI_guami_t *Guami = NULL;
-#endif
+    OpenAPI_sm_policy_context_data_t *SmPolicyContextData = NULL;
+    OpenAPI_snssai_t *sliceInfo = NULL;
 
     ogs_assert(sess);
     pcf_ue = sess->pcf_ue;
     ogs_assert(stream);
     ogs_assert(message);
 
-#if 0
-    PolicyAssociationRequest = message->PolicyAssociationRequest;
-    if (!PolicyAssociationRequest) {
-        ogs_error("[%s] No PolicyAssociationRequest", pcf_ue->supi);
-        ogs_sbi_server_send_error(stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
-                message, "[%s] No PolicyAssociationRequest", pcf_ue->supi);
-        return false;
+    SmPolicyContextData = message->SmPolicyContextData;
+    if (!SmPolicyContextData) {
+        strerror = ogs_msprintf("[%s:%d] No SmPolicyContextData",
+                pcf_ue->supi, sess->psi);
+        goto cleanup;
     }
 
-    if (!PolicyAssociationRequest->notification_uri) {
-        ogs_error("[%s] No notificationUri", pcf_ue->supi);
-        ogs_sbi_server_send_error(stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
-                message, "No notificationUri", pcf_ue->supi);
-        return false;
+    if (!SmPolicyContextData->supi) {
+        strerror = ogs_msprintf("[%s:%d] No supi", pcf_ue->supi, sess->psi);
+        goto cleanup;
     }
 
-    if (!PolicyAssociationRequest->supi) {
-        ogs_error("[%s] No supi", pcf_ue->supi);
-        ogs_sbi_server_send_error(stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
-                message, "No supi", pcf_ue->supi);
-        return false;
+    if (!SmPolicyContextData->pdu_session_id) {
+        strerror = ogs_msprintf("[%s:%d] No pduSessionId",
+                pcf_ue->supi, sess->psi);
+        goto cleanup;
     }
 
-    if (!PolicyAssociationRequest->supp_feat) {
-        ogs_error("[%s] No suppFeat", pcf_ue->supi);
-        ogs_sbi_server_send_error(stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
-                message, "No suppFeat", pcf_ue->supi);
-        return false;
+    if (!SmPolicyContextData->pdu_session_type) {
+        strerror = ogs_msprintf("[%s:%d] No pduSessionType",
+                pcf_ue->supi, sess->psi);
+        goto cleanup;
     }
 
-    if (pcf_ue->notification_uri)
-        ogs_free(pcf_ue->notification_uri);
-    pcf_ue->notification_uri = ogs_strdup(
-            PolicyAssociationRequest->notification_uri);
-
-    Guami = PolicyAssociationRequest->guami;
-    if (Guami && Guami->amf_id &&
-        Guami->plmn_id && Guami->plmn_id->mnc && Guami->plmn_id->mcc) {
-        ogs_sbi_parse_guami(&pcf_ue->guami, PolicyAssociationRequest->guami);
+    if (!SmPolicyContextData->dnn) {
+        strerror = ogs_msprintf("[%s:%d] No dnn", pcf_ue->supi, sess->psi);
+        goto cleanup;
     }
 
-    if (PolicyAssociationRequest->rat_type)
-        pcf_ue->rat_type = PolicyAssociationRequest->rat_type;
+    if (!SmPolicyContextData->notification_uri) {
+        strerror = ogs_msprintf("[%s:%d] No notificationUri",
+                pcf_ue->supi, sess->psi);
+        goto cleanup;
+    }
 
-    pcf_ue->policy_association_request =
-        OpenAPI_policy_association_request_copy(
-                pcf_ue->policy_association_request,
-                message->PolicyAssociationRequest);
+    sliceInfo = SmPolicyContextData->slice_info;
+    if (!sliceInfo) {
+        strerror = ogs_msprintf("[%s:%d] No sliceInfo",
+                pcf_ue->supi, sess->psi);
+        goto cleanup;
+    }
 
-    pcf_ue_sbi_discover_and_send(OpenAPI_nf_type_UDR, pcf_ue, stream, NULL,
-            pcf_nudr_dr_build_query_am_data);
-#endif
+    sess->pdu_session_type = SmPolicyContextData->pdu_session_type;
+
+    if (sess->dnn)
+        ogs_free(sess->dnn);
+    sess->dnn = ogs_strdup(SmPolicyContextData->dnn);
+
+    if (sess->notification_uri)
+        ogs_free(sess->notification_uri);
+    sess->notification_uri = ogs_strdup(SmPolicyContextData->notification_uri);
+
+    sess->s_nssai.sst = sliceInfo->sst;
+    sess->s_nssai.sd = ogs_s_nssai_sd_from_string(sliceInfo->sd);
+
+    pcf_sess_sbi_discover_and_send(OpenAPI_nf_type_UDR, sess, stream, NULL,
+            pcf_nudr_dr_build_query_sm_data);
 
     return true;
+
+cleanup:
+    ogs_assert(strerror);
+    ogs_error("%s", strerror);
+    ogs_sbi_server_send_error(stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
+            message, strerror, NULL);
+    ogs_free(strerror);
+
+    return false;
 }

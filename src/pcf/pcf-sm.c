@@ -317,26 +317,62 @@ void pcf_state_operational(ogs_fsm_t *s, pcf_event_t *e)
         CASE(OGS_SBI_SERVICE_NAME_NUDR_DR)
             SWITCH(message.h.resource.component[0])
             CASE(OGS_SBI_RESOURCE_NAME_POLICY_DATA)
-                sbi_xact = e->sbi.data;
-                ogs_assert(sbi_xact);
+                SWITCH(message.h.resource.component[3])
+                CASE(OGS_SBI_RESOURCE_NAME_AM_DATA)
+                    sbi_xact = e->sbi.data;
+                    ogs_assert(sbi_xact);
 
-                pcf_ue = (pcf_ue_t *)sbi_xact->sbi_object;
-                ogs_assert(pcf_ue);
-                pcf_ue = pcf_ue_cycle(pcf_ue);
-                ogs_assert(pcf_ue);
+                    pcf_ue = (pcf_ue_t *)sbi_xact->sbi_object;
+                    ogs_assert(pcf_ue);
+                    pcf_ue = pcf_ue_cycle(pcf_ue);
+                    ogs_assert(pcf_ue);
 
-                e->pcf_ue = pcf_ue;
-                e->sbi.message = &message;
-                e->sbi.data = sbi_xact->assoc_stream;
+                    e->pcf_ue = pcf_ue;
+                    e->sbi.message = &message;
+                    e->sbi.data = sbi_xact->assoc_stream;
 
-                ogs_sbi_xact_remove(sbi_xact);
+                    ogs_sbi_xact_remove(sbi_xact);
 
-                ogs_fsm_dispatch(&pcf_ue->sm, e);
-                if (OGS_FSM_CHECK(&pcf_ue->sm, pcf_am_state_exception)) {
-                    ogs_error("[%s] State machine exception", pcf_ue->supi);
-                    pcf_ue_remove(pcf_ue);
-                }
+                    ogs_fsm_dispatch(&pcf_ue->sm, e);
+                    if (OGS_FSM_CHECK(&pcf_ue->sm, pcf_am_state_exception)) {
+                        ogs_error("[%s] State machine exception", pcf_ue->supi);
+                        pcf_ue_remove(pcf_ue);
+                    }
+                    break;
 
+                CASE(OGS_SBI_RESOURCE_NAME_SM_DATA)
+                    sbi_xact = e->sbi.data;
+                    ogs_assert(sbi_xact);
+
+                    sess = (pcf_sess_t *)sbi_xact->sbi_object;
+                    ogs_assert(sess);
+                    sess = pcf_sess_cycle(sess);
+                    ogs_assert(sess);
+
+                    pcf_ue = sess->pcf_ue;
+                    ogs_assert(pcf_ue);
+                    pcf_ue = pcf_ue_cycle(pcf_ue);
+                    ogs_assert(pcf_ue);
+
+                    e->sess = sess;
+                    e->sbi.message = &message;
+                    e->sbi.data = sbi_xact->assoc_stream;
+
+                    ogs_sbi_xact_remove(sbi_xact);
+
+                    ogs_fsm_dispatch(&sess->sm, e);
+                    if (OGS_FSM_CHECK(&sess->sm, pcf_am_state_exception)) {
+                        ogs_error("[%s:%d] State machine exception",
+                                    pcf_ue->supi, sess->psi);
+                        pcf_sess_remove(sess);
+                    }
+                    break;
+
+                DEFAULT
+                    ogs_error("Invalid resource name [%s]",
+                            message.h.resource.component[3]);
+                    ogs_assert_if_reached();
+                END
                 break;
 
             DEFAULT
