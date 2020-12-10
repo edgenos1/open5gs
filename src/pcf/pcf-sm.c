@@ -45,9 +45,12 @@ void pcf_state_operational(ogs_fsm_t *s, pcf_event_t *e)
     ogs_sbi_subscription_t *subscription = NULL;
     ogs_sbi_response_t *response = NULL;
     ogs_sbi_message_t message;
+
+    ogs_sbi_object_t *sbi_object = NULL;
     ogs_sbi_xact_t *sbi_xact = NULL;
 
     pcf_ue_t *pcf_ue = NULL;
+    pcf_sess_t *sess = NULL;
 
     pcf_sm_debug(e);
 
@@ -340,6 +343,31 @@ void pcf_state_operational(ogs_fsm_t *s, pcf_event_t *e)
         case PCF_TIMER_SBI_CLIENT_WAIT:
             sbi_xact = e->sbi.data;
             ogs_assert(sbi_xact);
+
+            sbi_object = sbi_xact->sbi_object;
+            ogs_assert(sbi_object);
+            ogs_assert(sbi_object->type > OGS_SBI_OBJ_BASE &&
+                        sbi_object->type < OGS_SBI_OBJ_TOP);
+
+            switch(sbi_object->type) {
+            case OGS_SBI_OBJ_UE_TYPE:
+                pcf_ue = (pcf_ue_t *)sbi_object;
+                ogs_assert(pcf_ue);
+                ogs_error("[%s] Cannot receive SBI message", pcf_ue->supi);
+                break;
+
+            case OGS_SBI_OBJ_SESS_TYPE:
+                sess = (pcf_sess_t *)sbi_object;
+                ogs_assert(sess);
+                ogs_error("[%d] Cannot receive SBI message", sess->psi);
+                break;
+
+            default:
+                ogs_fatal("Not implemented [%s:%d]",
+                    OpenAPI_nf_type_ToString(sbi_xact->target_nf_type),
+                    sbi_object->type);
+                ogs_assert_if_reached();
+            }
 
             stream = sbi_xact->assoc_stream;
             ogs_assert(stream);

@@ -24,6 +24,7 @@ static pcf_context_t self;
 int __pcf_log_domain;
 
 static OGS_POOL(pcf_ue_pool, pcf_ue_t);
+static OGS_POOL(pcf_sess_pool, pcf_sess_t);
 
 static int context_initialized = 0;
 
@@ -37,6 +38,7 @@ void pcf_context_init(void)
     ogs_log_install_domain(&__pcf_log_domain, "pcf", ogs_core()->log.level);
 
     ogs_pool_init(&pcf_ue_pool, ogs_app()->max.ue);
+    ogs_pool_init(&pcf_sess_pool, ogs_app()->pool.sess);
 
     ogs_list_init(&self.pcf_ue_list);
     self.supi_hash = ogs_hash_make();
@@ -53,6 +55,7 @@ void pcf_context_final(void)
     ogs_assert(self.supi_hash);
     ogs_hash_destroy(self.supi_hash);
 
+    ogs_pool_final(&pcf_sess_pool);
     ogs_pool_final(&pcf_ue_pool);
 
     context_initialized = 0;
@@ -121,6 +124,8 @@ pcf_ue_t *pcf_ue_add(char *supi)
     ogs_pool_alloc(&pcf_ue_pool, &pcf_ue);
     ogs_assert(pcf_ue);
     memset(pcf_ue, 0, sizeof *pcf_ue);
+
+    pcf_ue->sbi.type = OGS_SBI_OBJ_UE_TYPE;
 
     pcf_ue->association_id = ogs_msprintf("%d",
             (int)ogs_pool_index(&pcf_ue_pool, pcf_ue));
@@ -191,7 +196,72 @@ pcf_ue_t *pcf_ue_find_by_association_id(char *association_id)
     return ogs_pool_find(&pcf_ue_pool, atoll(association_id));
 }
 
+pcf_sess_t *pcf_sess_add(pcf_ue_t *pcf_ue, uint8_t psi)
+{
+    pcf_sess_t *sess = NULL;
+
+    ogs_assert(pcf_ue);
+    ogs_assert(psi != OGS_NAS_PDU_SESSION_IDENTITY_UNASSIGNED);
+
+    ogs_pool_alloc(&pcf_sess_pool, &sess);
+    ogs_assert(sess);
+    memset(sess, 0, sizeof *sess);
+
+    sess->sbi.type = OGS_SBI_OBJ_SESS_TYPE;
+
+    sess->pcf_ue = pcf_ue;
+    sess->psi = psi;
+
+    sess->s_nssai.sst = 0;
+    sess->s_nssai.sd.v = OGS_S_NSSAI_NO_SD_VALUE;
+
+    ogs_list_add(&pcf_ue->sess_list, sess);
+
+    return sess;
+}
+
+void pcf_sess_remove(pcf_sess_t *sess)
+{
+    ogs_assert(sess);
+    ogs_assert(sess->pcf_ue);
+
+    ogs_list_remove(&sess->pcf_ue->sess_list, sess);
+
+    /* Free SBI object memory */
+    ogs_sbi_object_free(&sess->sbi);
+
+    if (sess->dnn)
+        ogs_free(sess->dnn);
+
+    ogs_pool_free(&pcf_sess_pool, sess);
+}
+
+void pcf_sess_remove_all(pcf_ue_t *pcf_ue)
+{
+    pcf_sess_t *sess = NULL, *next_sess = NULL;
+
+    ogs_assert(pcf_ue);
+
+    ogs_list_for_each_safe(&pcf_ue->sess_list, next_sess, sess)
+        pcf_sess_remove(sess);
+}
+
+pcf_sess_t *pcf_sess_find_by_psi(pcf_ue_t *pcf_ue, uint8_t psi)
+{
+    pcf_sess_t *sess = NULL;
+
+    ogs_list_for_each(&pcf_ue->sess_list, sess)
+        if (psi == sess->psi) return sess;
+
+    return NULL;
+}
+
 pcf_ue_t *pcf_ue_cycle(pcf_ue_t *pcf_ue)
 {
     return ogs_pool_cycle(&pcf_ue_pool, pcf_ue);
+}
+
+pcf_sess_t *pcf_sess_cycle(pcf_sess_t *sess)
+{
+    return ogs_pool_cycle(&pcf_sess_pool, sess);
 }

@@ -46,20 +46,6 @@ typedef struct pcf_context_s {
 
 } pcf_context_t;
 
-struct pcf_ue_s {
-    ogs_sbi_object_t sbi;
-    ogs_fsm_t sm;
-
-    OpenAPI_policy_association_request_t *policy_association_request;
-
-    char *association_id;
-    char *supi;
-
-    char *notification_uri;
-
-    ogs_guami_t guami;
-    OpenAPI_rat_type_e rat_type;
-
 #define PCF_NF_INSTANCE_CLEAR(_cAUSE, _nFInstance) \
     do { \
         ogs_assert(_nFInstance); \
@@ -75,6 +61,35 @@ struct pcf_ue_s {
         } \
         ogs_sbi_nf_instance_remove(_nFInstance); \
     } while(0)
+
+struct pcf_ue_s {
+    ogs_sbi_object_t sbi;
+    ogs_fsm_t sm;
+
+    OpenAPI_policy_association_request_t *policy_association_request;
+
+    char *association_id;
+    char *supi;
+
+    char *notification_uri;
+
+    ogs_guami_t guami;
+    OpenAPI_rat_type_e rat_type;
+
+    ogs_list_t sess_list;
+};
+
+struct pcf_sess_s {
+    ogs_sbi_object_t sbi;
+    ogs_fsm_t sm;
+
+    uint8_t psi; /* PDU Session Identity */
+
+    ogs_s_nssai_t s_nssai;
+    char *dnn;
+
+    /* Related Context */
+    pcf_ue_t        *pcf_ue;
 };
 
 void pcf_context_init(void);
@@ -89,7 +104,14 @@ void pcf_ue_remove_all(void);
 pcf_ue_t *pcf_ue_find_by_supi(char *supi);
 pcf_ue_t *pcf_ue_find_by_association_id(char *association_id);
 
+pcf_sess_t *pcf_sess_add(pcf_ue_t *pcf_ue, uint8_t psi);
+void pcf_sess_remove(pcf_sess_t *sess);
+void pcf_sess_remove_all(pcf_ue_t *pcf_ue);
+pcf_sess_t *pcf_sess_find_by_psi(pcf_ue_t *pcf_ue, uint8_t psi);
+pcf_sess_t *pcf_sess_find_by_dnn(pcf_ue_t *pcf_ue, char *dnn);
+
 pcf_ue_t *pcf_ue_cycle(pcf_ue_t *pcf_ue);
+pcf_sess_t *pcf_sess_cycle(pcf_sess_t *sess);
 
 #ifdef __cplusplus
 }

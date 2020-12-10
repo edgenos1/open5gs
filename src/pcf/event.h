@@ -33,6 +33,7 @@ typedef struct ogs_sbi_nf_instance_s ogs_sbi_nf_instance_t;
 typedef struct ogs_sbi_subscription_s ogs_sbi_subscription_t;
 
 typedef struct pcf_ue_s pcf_ue_t;
+typedef struct pcf_sess_s pcf_sess_t;
 
 typedef enum {
     PCF_EVT_BASE = OGS_FSM_USER_SIG,
@@ -58,6 +59,7 @@ typedef struct pcf_event_s {
     } sbi;
 
     pcf_ue_t *pcf_ue;
+    pcf_sess_t *sess;
 
     ogs_timer_t *timer;
 } pcf_event_t;

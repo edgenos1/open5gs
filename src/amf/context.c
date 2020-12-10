@@ -1485,7 +1485,7 @@ void amf_sess_remove(amf_sess_t *sess)
 {
     ogs_assert(sess);
     ogs_assert(sess->amf_ue);
-    
+
     ogs_list_remove(&sess->amf_ue->sess_list, sess);
 
     /* Free SBI object memory */

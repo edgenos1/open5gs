@@ -211,6 +211,8 @@ void pcf_nnrf_handle_nf_discover(
         ogs_sbi_xact_t *xact, ogs_sbi_message_t *message)
 {
     ogs_sbi_object_t *sbi_object = NULL;
+    pcf_ue_t *pcf_ue = NULL;
+    pcf_sess_t *sess = NULL;
     ogs_sbi_nf_instance_t *nf_instance = NULL;
     ogs_sbi_stream_t *stream = NULL;
 
@@ -297,8 +299,27 @@ void pcf_nnrf_handle_nf_discover(
     nf_instance = OGS_SBI_NF_INSTANCE_GET(
             sbi_object->nf_type_array, xact->target_nf_type);
     if (!nf_instance) {
-        ogs_error("(NF discover) No [%s]",
-                OpenAPI_nf_type_ToString(xact->target_nf_type));
+        ogs_assert(sbi_object->type > OGS_SBI_OBJ_BASE &&
+                    sbi_object->type < OGS_SBI_OBJ_TOP);
+        switch(sbi_object->type) {
+        case OGS_SBI_OBJ_UE_TYPE:
+            pcf_ue = (pcf_ue_t *)sbi_object;
+            ogs_assert(pcf_ue);
+            ogs_error("[%s] (NF discover) No [%s]", pcf_ue->supi,
+                    OpenAPI_nf_type_ToString(xact->target_nf_type));
+            break;
+        case OGS_SBI_OBJ_SESS_TYPE:
+            sess = (pcf_sess_t *)sbi_object;
+            ogs_assert(sess);
+            ogs_error("[%d] (NF discover) No [%s]", sess->psi,
+                    OpenAPI_nf_type_ToString(xact->target_nf_type));
+            break;
+        default:
+            ogs_fatal("(NF discover) Not implemented [%s:%d]",
+                OpenAPI_nf_type_ToString(xact->target_nf_type),
+                sbi_object->type);
+            ogs_assert_if_reached();
+        }
     } else {
         pcf_sbi_send(nf_instance, xact);
     }
