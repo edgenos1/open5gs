@@ -96,22 +96,32 @@ void pcf_sm_state_operational(ogs_fsm_t *s, pcf_event_t *e)
         CASE(OGS_SBI_SERVICE_NAME_NUDR_DR)
             SWITCH(message->h.resource.component[0])
             CASE(OGS_SBI_RESOURCE_NAME_POLICY_DATA)
-                if (message->res_status != OGS_SBI_HTTP_STATUS_OK &&
-                    message->res_status != OGS_SBI_HTTP_STATUS_NO_CONTENT) {
-                    if (message->res_status ==
-                            OGS_SBI_HTTP_STATUS_NOT_FOUND) {
-                        ogs_warn("[%s:%d] Cannot find SUPI [%d]",
-                            pcf_ue->supi, sess->psi, message->res_status);
-                    } else {
-                        ogs_error("[%s:%d] HTTP response error [%d]",
-                            pcf_ue->supi, sess->psi, message->res_status);
+                SWITCH(message->h.resource.component[1])
+                CASE(OGS_SBI_RESOURCE_NAME_UES)
+                    if (message->res_status != OGS_SBI_HTTP_STATUS_OK &&
+                        message->res_status != OGS_SBI_HTTP_STATUS_NO_CONTENT) {
+                        if (message->res_status ==
+                                OGS_SBI_HTTP_STATUS_NOT_FOUND) {
+                            ogs_warn("[%s:%d] Cannot find SUPI [%d]",
+                                pcf_ue->supi, sess->psi, message->res_status);
+                        } else {
+                            ogs_error("[%s:%d] HTTP response error [%d]",
+                                pcf_ue->supi, sess->psi, message->res_status);
+                        }
+                        ogs_sbi_server_send_error(stream, message->res_status,
+                            NULL, "HTTP response error", pcf_ue->supi);
+                        break;
                     }
-                    ogs_sbi_server_send_error(stream, message->res_status,
-                        NULL, "HTTP response error", pcf_ue->supi);
-                    break;
-                }
 
-                pcf_nudr_dr_handle_query_sm_data(sess, stream, message);
+                    pcf_nudr_dr_handle_query_sm_data(sess, stream, message);
+                    break;
+
+                DEFAULT
+                    ogs_error("[%s:%d] Invalid resource name [%s]",
+                            pcf_ue->supi, sess->psi,
+                            message->h.resource.component[1]);
+                    ogs_assert_if_reached();
+                END
                 break;
 
             DEFAULT

@@ -744,6 +744,20 @@ bool udr_nudr_dr_handle_policy_data(
 
                 return true;
 
+#if 0
+            CASE(OGS_SBI_RESOURCE_NAME_SM_DATA)
+                OpenAPI_sm_policy_data_t SmPolicyData;
+
+                memset(&sendmsg, 0, sizeof(sendmsg));
+
+                response = ogs_sbi_build_response(
+                        &sendmsg, OGS_SBI_HTTP_STATUS_OK);
+                ogs_assert(response);
+                ogs_sbi_server_send_response(stream, response);
+
+                return true;
+#endif
+
             DEFAULT
                 ogs_error("Invalid resource name [%s]",
                         recvmsg->h.resource.component[3]);
