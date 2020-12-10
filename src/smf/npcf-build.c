@@ -63,7 +63,7 @@ ogs_sbi_request_t *smf_npcf_smpolicycontrol_build_create(
     ogs_assert(server);
 
     memset(&header, 0, sizeof(header));
-    header.service.name = (char *)OGS_SBI_SERVICE_NAME_NAMF_CALLBACK;
+    header.service.name = (char *)OGS_SBI_SERVICE_NAME_NSMF_CALLBACK;
     header.api.version = (char *)OGS_SBI_API_V1;
     header.resource.component[0] =
             (char *)OGS_SBI_RESOURCE_NAME_SM_POLICY_NOTIFY;

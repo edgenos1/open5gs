@@ -123,6 +123,9 @@ extern "C" {
 #define OGS_SBI_RESOURCE_NAME_MODIFY                "modify"
 #define OGS_SBI_RESOURCE_NAME_RELEASE               "release"
 
+#define OGS_SBI_SERVICE_NAME_NSMF_CALLBACK          "nsmf-callback"
+#define OGS_SBI_RESOURCE_NAME_SM_POLICY_NOTIFY      "sm-policy-notify"
+
 #define OGS_SBI_SERVICE_NAME_NAMF_COMM              "namf-comm"
 #define OGS_SBI_RESOURCE_NAME_UE_CONTEXTS           "ue-contexts"
 #define OGS_SBI_RESOURCE_NAME_N1_N2_MESSAGES        "n1-n2-messages"
@@ -130,7 +133,6 @@ extern "C" {
 #define OGS_SBI_SERVICE_NAME_NAMF_CALLBACK          "namf-callback"
 #define OGS_SBI_RESOURCE_NAME_SM_CONTEXT_STATUS     "sm-context-status"
 #define OGS_SBI_RESOURCE_NAME_AM_POLICY_NOTIFY      "am-policy-notify"
-#define OGS_SBI_RESOURCE_NAME_SM_POLICY_NOTIFY      "sm-policy-notify"
 #define OGS_SBI_RESOURCE_NAME_DEREG_NOTIFY          "dereg-notify"
 
 #define OGS_SBI_SERVICE_NAME_NPCF_AM_POLICY_CONTROL "npcf-am-policy-control"
