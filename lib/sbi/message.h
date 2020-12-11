@@ -230,10 +230,10 @@ typedef struct ogs_sbi_message_s {
         bool plmn_id_presence;
         ogs_plmn_id_t plmn_id;
 
-        bool single_nssai_presence; /* Encoder : single-nssai */
-        bool snssai_presence;       /* Encoder : snssai */
-        bool s_nssai_presence;      /* Decoder */
-        ogs_s_nssai_t s_nssai;
+        bool single_nssai_presence;
+        ogs_s_nssai_t single_nssai;
+        bool snssai_presence;
+        ogs_s_nssai_t snssai;
     } param;
 
     int res_status;

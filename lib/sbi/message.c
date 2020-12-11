@@ -292,40 +292,44 @@ ogs_sbi_request_t *ogs_sbi_build_request(ogs_sbi_message_t *message)
             ogs_free(v);
         }
     }
-    if (message->param.single_nssai_presence ||
-        message->param.snssai_presence ||
-        message->param.s_nssai_presence) {
+    if (message->param.single_nssai_presence) {
         char *v = NULL;
         cJSON *item = NULL;
-        OpenAPI_snssai_t s_nssai;
+        OpenAPI_snssai_t single_nssai;
 
-        s_nssai.sst = message->param.s_nssai.sst;
-        s_nssai.sd = ogs_s_nssai_sd_to_string(message->param.s_nssai.sd);
+        single_nssai.sst = message->param.single_nssai.sst;
+        single_nssai.sd = ogs_s_nssai_sd_to_string(
+                message->param.single_nssai.sd);
 
-        item = OpenAPI_snssai_convertToJSON(&s_nssai);
+        item = OpenAPI_snssai_convertToJSON(&single_nssai);
         ogs_assert(item);
-        if (s_nssai.sd) ogs_free(s_nssai.sd);
+        if (single_nssai.sd) ogs_free(single_nssai.sd);
 
         v = cJSON_Print(item);
         ogs_assert(v);
         cJSON_Delete(item);
 
-        if (message->param.single_nssai_presence)
-            ogs_sbi_header_set(
-                    request->http.params, OGS_SBI_PARAM_SINGLE_NSSAI, v);
-        else if (message->param.snssai_presence)
-            ogs_sbi_header_set(
-                    request->http.params, OGS_SBI_PARAM_SNSSAI, v);
-        else if (message->param.s_nssai_presence) {
-            int i;
-            ogs_fatal("You should not use DECODER presence");
-            ogs_fatal("%s/%s", request->h.service.name, request->h.api.version);
-            for (i = 0; i < OGS_SBI_MAX_NUM_OF_RESOURCE_COMPONENT &&
-                                request->h.resource.component[i]; i++)
-                ogs_fatal("%s", request->h.resource.component[i]);
-            ogs_assert_if_reached();
-        } else
-            ogs_assert_if_reached();
+        ogs_sbi_header_set(request->http.params, OGS_SBI_PARAM_SINGLE_NSSAI, v);
+
+        ogs_free(v);
+    }
+    if (message->param.snssai_presence) {
+        char *v = NULL;
+        cJSON *item = NULL;
+        OpenAPI_snssai_t snssai;
+
+        snssai.sst = message->param.snssai.sst;
+        snssai.sd = ogs_s_nssai_sd_to_string(message->param.snssai.sd);
+
+        item = OpenAPI_snssai_convertToJSON(&snssai);
+        ogs_assert(item);
+        if (snssai.sd) ogs_free(snssai.sd);
+
+        v = cJSON_Print(item);
+        ogs_assert(v);
+        cJSON_Delete(item);
+
+        ogs_sbi_header_set(request->http.params, OGS_SBI_PARAM_SNSSAI, v);
 
         ogs_free(v);
     }
@@ -434,23 +438,42 @@ int ogs_sbi_parse_request(
                     cJSON_Delete(item);
                 }
             }
-        } else if (!strcmp(ogs_hash_this_key(hi), OGS_SBI_PARAM_SINGLE_NSSAI) ||
-                    !strcmp(ogs_hash_this_key(hi), OGS_SBI_PARAM_SNSSAI)) {
+        } else if (!strcmp(ogs_hash_this_key(hi), OGS_SBI_PARAM_SINGLE_NSSAI)) {
             char *v = NULL;
             cJSON *item = NULL;
-            OpenAPI_snssai_t *s_nssai = NULL;
+            OpenAPI_snssai_t *single_nssai = NULL;
 
             v = ogs_hash_this_val(hi);
             if (v) {
                 item = cJSON_Parse(v);
                 if (item) {
-                    s_nssai = OpenAPI_snssai_parseFromJSON(item);
-                    if (s_nssai) {
-                        message->param.s_nssai_presence = true;
-                        message->param.s_nssai.sst = s_nssai->sst;
-                        message->param.s_nssai.sd =
-                            ogs_s_nssai_sd_from_string(s_nssai->sd);
-                        OpenAPI_snssai_free(s_nssai);
+                    single_nssai = OpenAPI_snssai_parseFromJSON(item);
+                    if (single_nssai) {
+                        message->param.single_nssai_presence = true;
+                        message->param.single_nssai.sst = single_nssai->sst;
+                        message->param.single_nssai.sd =
+                            ogs_s_nssai_sd_from_string(single_nssai->sd);
+                        OpenAPI_snssai_free(single_nssai);
+                    }
+                    cJSON_Delete(item);
+                }
+            }
+        } else if (!strcmp(ogs_hash_this_key(hi), OGS_SBI_PARAM_SNSSAI)) {
+            char *v = NULL;
+            cJSON *item = NULL;
+            OpenAPI_snssai_t *snssai = NULL;
+
+            v = ogs_hash_this_val(hi);
+            if (v) {
+                item = cJSON_Parse(v);
+                if (item) {
+                    snssai = OpenAPI_snssai_parseFromJSON(item);
+                    if (snssai) {
+                        message->param.snssai_presence = true;
+                        message->param.snssai.sst = snssai->sst;
+                        message->param.snssai.sd =
+                            ogs_s_nssai_sd_from_string(snssai->sd);
+                        OpenAPI_snssai_free(snssai);
                     }
                     cJSON_Delete(item);
                 }

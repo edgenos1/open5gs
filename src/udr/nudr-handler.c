@@ -423,7 +423,7 @@ bool udr_nudr_dr_handle_subscription_provisioned(
         OpenAPI_ip_address_t *ipAddress = NULL;
         OpenAPI_lnode_t *node = NULL, *node2 = NULL;
 
-        if (!recvmsg->param.s_nssai_presence) {
+        if (!recvmsg->param.single_nssai_presence) {
             ogs_error("[%s] Cannot find S_NSSAI", supi);
             ogs_sbi_server_send_error(stream,
                     OGS_SBI_HTTP_STATUS_NOT_FOUND,
@@ -431,8 +431,9 @@ bool udr_nudr_dr_handle_subscription_provisioned(
             return false;
         }
 
-        singleNSSAI.sst = recvmsg->param.s_nssai.sst;
-        singleNSSAI.sd = ogs_s_nssai_sd_to_string(recvmsg->param.s_nssai.sd);
+        singleNSSAI.sst = recvmsg->param.single_nssai.sst;
+        singleNSSAI.sd = ogs_s_nssai_sd_to_string(
+                            recvmsg->param.single_nssai.sd);
 
         dnnConfigurationList = OpenAPI_list_create();
 

@@ -64,7 +64,7 @@ ogs_sbi_request_t *pcf_nudr_dr_build_query_sm_data(
     message.h.resource.component[3] = (char *)OGS_SBI_RESOURCE_NAME_SM_DATA;
 
     message.param.snssai_presence = true;
-    memcpy(&message.param.s_nssai, &sess->s_nssai, sizeof(sess->s_nssai));
+    memcpy(&message.param.snssai, &sess->s_nssai, sizeof(message.param.snssai));
 
     if (sess->dnn)
         message.param.dnn = sess->dnn;
